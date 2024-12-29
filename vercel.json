@@ -11,9 +11,6 @@
         "src": "/(.*)",
         "dest": "/index.js"
       }
-    ],
-    "env": {
-      "DB_URL": "mongodb+srv://rvldrh:berlianmudasukses@dmscluster.0gb6p.mongodb.net/Database_DMS"
-    }
+    ]
   }
   

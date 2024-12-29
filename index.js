@@ -12,21 +12,26 @@ const laporan_penjualan = require("./routes/laporan_penjualan.route");
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+console.log("DB_URL:", process.env.DB_URL);
 
 // Example routes
 app.get("/", (req, res) => {
-  res.send("API is running on Vercel!");
+  res.send("API is running on port 8008!");
 });
 app.use('/barang_masuk', barang_masuk);
 app.use('/barang_keluar', barang_keluar);
 app.use('/katalog_barang', katalog_barang);
 app.use('/laporan', laporan);
 app.use('/laporan_penjualan', laporan_penjualan);
+
 // Connect to MongoDB
 mongoose
   .connect(process.env.DB_URL, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log("Connected to MongoDB"))
   .catch((err) => console.error("MongoDB connection error:", err));
 
-// Start the server (no need to specify port manually for Vercel)
-module.exports = app;
+// Start the server
+const PORT = process.env.PORT;
+app.listen(PORT, () => {
+  console.log(`Server is running on http://localhost:${PORT}`);
+});
