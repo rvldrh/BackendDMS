@@ -12,8 +12,12 @@ const katalog_barang = require("./routes/katalog_barang.route");
 const laporan = require("./routes/laporan.route");
 const laporan_penjualan = require("./routes/laporan_penjualan.route");
 
-// Middleware
-app.use(cors()); // Enable CORS
+const corsOptions = {
+  origin: 'http://localhost:3000', // Replace with your frontend URL
+  credentials: true, // Allow credentials like cookies or HTTP authentication
+};
+
+app.use(cors(corsOptions)); // Enable CORS
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
