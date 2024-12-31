@@ -1,8 +1,11 @@
 const express = require("express");
 const mongoose = require("mongoose");
+const cors = require("cors"); // CORS package
 require("dotenv").config(); // Load .env file
 
 const app = express();
+
+// Import routes
 const barang_masuk = require("./routes/barang_masuk.route");
 const barang_keluar = require("./routes/barang_keluar.route");
 const katalog_barang = require("./routes/katalog_barang.route");
@@ -10,8 +13,11 @@ const laporan = require("./routes/laporan.route");
 const laporan_penjualan = require("./routes/laporan_penjualan.route");
 
 // Middleware
+app.use(cors()); // Enable CORS
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Log DB_URL to check the environment variable
 console.log("DB_URL:", process.env.DB_URL);
 
 // Example routes
@@ -31,7 +37,7 @@ mongoose
   .catch((err) => console.error("MongoDB connection error:", err));
 
 // Start the server
-const PORT = process.env.PORT;
+const PORT = process.env.PORT // Default to 8008 if PORT is not set
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
