@@ -4,5 +4,6 @@ const controller = require("../controllers/katalog_barang.conroller");
 
 router.get("/", controller.getKatalogBarang);
 router.post("/", controller.addKatalogBarang);
+router.get("/:id", controller.getKatalogBarangById);
 
 module.exports = router;
