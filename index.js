@@ -12,14 +12,9 @@ const katalog_barang = require("./routes/katalog_barang.route");
 const laporan = require("./routes/laporan.route");
 const laporan_penjualan = require("./routes/laporan_penjualan.route");
 
-const corsOptions = {
-  origin: 'http://localhost:3000', // Replace with your frontend URL
-  credentials: true, // Allow credentials like cookies or HTTP authentication
-};
-
-app.use(cors(corsOptions)); // Enable CORS
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(cors()) // Enable CORS
+app.use(express.json())
+app.use(express.urlencoded({ extended: true }))
 
 // Log DB_URL to check the environment variable
 console.log("DB_URL:", process.env.DB_URL);
