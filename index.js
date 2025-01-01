@@ -12,9 +12,15 @@ const katalog_barang = require("./routes/katalog_barang.route");
 const laporan = require("./routes/laporan.route");
 const laporan_penjualan = require("./routes/laporan_penjualan.route");
 
-app.use(cors()) // Enable CORS
-app.use(express.json())
-app.use(express.urlencoded({ extended: true }))
+// Configure CORS with options
+const corsOptions = {
+  origin: "http://localhost:3000", // Replace with your frontend domain
+  credentials: true, // Allow credentials (cookies, headers)
+};
+
+app.use(cors(corsOptions)); // Enable CORS with specific options
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // Log DB_URL to check the environment variable
 console.log("DB_URL:", process.env.DB_URL);
@@ -23,11 +29,12 @@ console.log("DB_URL:", process.env.DB_URL);
 app.get("/", (req, res) => {
   res.send("API is running on port 8008!");
 });
-app.use('/barang_masuk', barang_masuk);
-app.use('/barang_keluar', barang_keluar);
-app.use('/katalog_barang', katalog_barang);
-app.use('/laporan', laporan);
-app.use('/laporan_penjualan', laporan_penjualan);
+
+app.use("/barang_masuk", barang_masuk);
+app.use("/barang_keluar", barang_keluar);
+app.use("/katalog_barang", katalog_barang);
+app.use("/laporan", laporan);
+app.use("/laporan_penjualan", laporan_penjualan);
 
 // Connect to MongoDB
 mongoose
@@ -36,7 +43,7 @@ mongoose
   .catch((err) => console.error("MongoDB connection error:", err));
 
 // Start the server
-const PORT = process.env.PORT // Default to 8008 if PORT is not set
+const PORT = process.env.PORT || 8008; // Default to 8008 if PORT is not set
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
