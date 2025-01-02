@@ -13,12 +13,8 @@ const laporan = require("./routes/laporan.route");
 const laporan_penjualan = require("./routes/laporan_penjualan.route");
 
 // Configure CORS with options
-const corsOptions = {
-  origin: "http://localhost:3000", // Replace with your frontend domain
-  credentials: true, // Allow credentials (cookies, headers)
-};
 
-app.use(cors(corsOptions)); // Enable CORS with specific options
+app.use(cors()); // Enable CORS with specific options
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
