@@ -110,7 +110,7 @@ exports.getLaporanPenjualanById = async (req, res) => {
     }
 
     const laporanPenjualan = await ModelLaporanPenjualan.findById(id)
-      .populate("item._id", "satuan harga stok_awal stok_akhir")
+      .populate("item._id", "nama_barang satuan harga stok_awal stok_akhir")
       .exec();
 
     if (!laporanPenjualan) {
