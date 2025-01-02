@@ -76,13 +76,13 @@ const SchemaLaporanPenjualan = new mongoose.Schema(
           required: true,
         },
         qty: { type: Number, required: true },
-        jumlahh: { type: Number, required: true },
+        jumlahh: { type: Number, required: false },
 
       },
     ],
-    subtotal : { type: Number, required: true },
+    subtotal : { type: Number, required: false },
     ppn : { type: Number, required: true },
-    grand_total : { type: Number, required: true },
+    grand_total : { type: Number, required: false },
   },
   { collection: "laporan_penjualan_barang" }
 )
