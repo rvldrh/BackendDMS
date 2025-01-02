@@ -14,7 +14,11 @@ const laporan_penjualan = require("./routes/laporan_penjualan.route");
 
 // Configure CORS with options
 
-app.use(cors()); // Enable CORS with specific options
+app.use(cors({
+  origin: 'http://localhost:3000', // Allow your frontend
+  methods: 'GET,POST,PUT,DELETE', // Allowed HTTP methods
+  credentials: true, // Include cookies if necessary
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
