@@ -2,79 +2,84 @@ const { ModelLaporanPenjualan, ModelBarang } = require("../models/main.model");
 const mongoose = require("mongoose");
 
 exports.addLaporanPenjualan = async (req, res) => {
-  try {
-    const { tanggal, no_invoice, tgl_jatuhTempo, item, ppn } = req.body;
-
-    if (
-      !tanggal ||
-      !no_invoice ||
-      !tgl_jatuhTempo ||
-      !item ||
-      ppn === undefined
-    ) {
-      return res.status(400).json({ message: "Missing required fields" });
-    }
-
-    const session = await mongoose.startSession();
-    session.startTransaction();
-
     try {
-      let subtotal = 0;
-
-      for (const product of item) {
-        const { _id, qty } = product;
-
-        const barang = await ModelBarang.findById(_id).session(session);
-        if (!barang) {
-          throw new Error(`Barang dengan ID ${_id} tidak ditemukan.`);
-        }
-
-        const itemTotal = barang.harga * qty;
-        product.total = itemTotal;
-        subtotal += itemTotal;
-
-        barang.keluar += qty;
-        barang.stok_akhir -= qty;
-
-        await barang.save({ session });
+      const { tanggal, no_invoice, tgl_jatuhTempo, item, ppn } = req.body;
+  
+      if (
+        !tanggal ||
+        !no_invoice ||
+        !tgl_jatuhTempo ||
+        !item ||
+        ppn === undefined
+      ) {
+        return res.status(400).json({ message: "Missing required fields" });
       }
-
-      const ppnValue = subtotal * Number.parseFloat(ppn);
-      const grand_total = subtotal + ppnValue;
-
-      const newLaporanPenjualan = new ModelLaporanPenjualan({
-        tanggal,
-        no_invoice,
-        tgl_jatuhTempo,
-        item,
-        ppn: Number.parseFloat(ppn),
-        grand_total,
-        subtotal,
-      });
-
-      await newLaporanPenjualan.save({ session });
-
-      await session.commitTransaction();
-      session.endSession();
-
-      res.status(201).json({
-        message: "Laporan Penjualan created successfully",
-        data: newLaporanPenjualan,
-      });
+  
+      const session = await mongoose.startSession();
+      session.startTransaction();
+  
+      try {
+        let subtotal = 0;
+  
+        // Process each item to calculate its total and update stock
+        for (const product of item) {
+          const { _id, qty } = product;
+  
+          const barang = await ModelBarang.findById(_id).session(session);
+          if (!barang) {
+            throw new Error(`Barang dengan ID ${_id} tidak ditemukan.`);
+          }
+  
+          // Calculate item total based on quantity and item price
+          const itemTotal = barang.harga * qty;
+          product.jumlah = itemTotal; // Add the calculated total for the product
+          subtotal += itemTotal; // Accumulate the subtotal
+  
+          // Update the stock of the item
+          barang.keluar += qty;
+          barang.stok_akhir -= qty;
+  
+          await barang.save({ session });
+        }
+  
+        // Calculate the PPN (Value Added Tax)
+        const ppnValue = subtotal * Number.parseFloat(ppn);
+        const grand_total = subtotal + ppnValue;
+  
+        // Create a new Laporan Penjualan
+        const newLaporanPenjualan = new ModelLaporanPenjualan({
+          tanggal,
+          no_invoice,
+          tgl_jatuhTempo,
+          item,
+          ppn: Number.parseFloat(ppn),
+          subtotal,
+          grand_total,
+        });
+  
+        // Save the new laporan penjualan
+        await newLaporanPenjualan.save({ session });
+  
+        await session.commitTransaction();
+        session.endSession();
+  
+        res.status(201).json({
+          message: "Laporan Penjualan created successfully",
+          data: newLaporanPenjualan,
+        });
+      } catch (err) {
+        await session.abortTransaction();
+        session.endSession();
+        throw err;
+      }
     } catch (err) {
-      await session.abortTransaction();
-      session.endSession();
-      throw err;
-    }
-  } catch (err) {
-    res
-      .status(500)
-      .json({
+      res.status(500).json({
         message: "Error creating laporan penjualan",
         error: err.message,
       });
-  }
-};
+    }
+  };
+  
 
 exports.getLaporanPenjualan = async (req, res) => {
   try {
