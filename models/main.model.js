@@ -76,7 +76,7 @@ const SchemaLaporanPenjualan = new mongoose.Schema(
           required: true,
         },
         qty: { type: Number, required: true },
-        jumlahh: { type: Number, required: false },
+        jumlah: { type: Number, required: false },
 
       },
     ],
