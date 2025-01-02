@@ -83,6 +83,7 @@ const SchemaLaporanPenjualan = new mongoose.Schema(
     subtotal : { type: Number, required: false },
     ppn : { type: Number, required: true },
     grand_total : { type: Number, required: false },
+    kepada : { type: String, required: true },
   },
   { collection: "laporan_penjualan_barang" }
 )
