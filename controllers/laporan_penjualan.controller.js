@@ -3,14 +3,15 @@ const mongoose = require("mongoose");
 
 exports.addLaporanPenjualan = async (req, res) => {
   try {
-    const { tanggal, no_invoice, tgl_jatuhTempo, item, ppn } = req.body;
+    const { tanggal, no_invoice, tgl_jatuhTempo, item, ppn, kepada } = req.body;
 
     if (
       !tanggal ||
       !no_invoice ||
       !tgl_jatuhTempo ||
       !item ||
-      ppn === undefined
+      ppn === undefined ||
+      !kepada
     ) {
       return res.status(400).json({ message: "Missing required fields" });
     }
@@ -21,7 +22,6 @@ exports.addLaporanPenjualan = async (req, res) => {
     try {
       let subtotal = 0;
 
-      // Process each item to calculate its total and update stock
       for (const product of item) {
         const { _id, qty } = product;
 
@@ -30,34 +30,30 @@ exports.addLaporanPenjualan = async (req, res) => {
           throw new Error(`Barang dengan ID ${_id} tidak ditemukan.`);
         }
 
-        // Calculate item total based on quantity and item price
         const itemTotal = barang.harga * qty;
-        product.jumlah = itemTotal; // Automatically add the calculated total for the product
-        subtotal += itemTotal; // Accumulate the subtotal
+        product.jumlah = itemTotal;
+        subtotal += itemTotal;
 
-        // Update the stock of the item
         barang.keluar += qty;
         barang.stok_akhir -= qty;
 
         await barang.save({ session });
       }
 
-      // Calculate the PPN (Value Added Tax)
       const ppnValue = subtotal * Number.parseFloat(ppn);
       const grand_total = subtotal + ppnValue;
 
-      // Create a new Laporan Penjualan
       const newLaporanPenjualan = new ModelLaporanPenjualan({
         tanggal,
         no_invoice,
         tgl_jatuhTempo,
-        item, // This item now includes the calculated 'jumlah' field
+        item,
         ppn: Number.parseFloat(ppn),
         subtotal,
         grand_total,
+        kepada, // Tambahkan field kepada
       });
 
-      // Save the new laporan penjualan
       await newLaporanPenjualan.save({ session });
 
       await session.commitTransaction();
@@ -80,7 +76,6 @@ exports.addLaporanPenjualan = async (req, res) => {
   }
 };
 
-
 exports.getLaporanPenjualan = async (req, res) => {
   try {
     const laporan_penjualan = await ModelLaporanPenjualan.find()
@@ -92,12 +87,10 @@ exports.getLaporanPenjualan = async (req, res) => {
       data: laporan_penjualan,
     });
   } catch (err) {
-    res
-      .status(500)
-      .json({
-        message: "Error retrieving laporan_penjualan",
-        error: err.message,
-      });
+    res.status(500).json({
+      message: "Error retrieving laporan_penjualan",
+      error: err.message,
+    });
   }
 };
 
@@ -122,19 +115,17 @@ exports.getLaporanPenjualanById = async (req, res) => {
       data: laporanPenjualan,
     });
   } catch (err) {
-    res
-      .status(500)
-      .json({
-        message: "Error retrieving laporan penjualan",
-        error: err.message,
-      });
+    res.status(500).json({
+      message: "Error retrieving laporan penjualan",
+      error: err.message,
+    });
   }
 };
 
 exports.updateLaporanPenjualan = async (req, res) => {
   try {
     const { id } = req.params;
-    const { tanggal, no_invoice, tgl_jatuhTempo, item, ppn } = req.body;
+    const { tanggal, no_invoice, tgl_jatuhTempo, item, ppn, kepada } = req.body;
 
     if (
       !id ||
@@ -142,7 +133,8 @@ exports.updateLaporanPenjualan = async (req, res) => {
       !no_invoice ||
       !tgl_jatuhTempo ||
       !item ||
-      ppn === undefined
+      ppn === undefined ||
+      !kepada
     ) {
       return res.status(400).json({ message: "Missing required fields" });
     }
@@ -159,7 +151,6 @@ exports.updateLaporanPenjualan = async (req, res) => {
         return res.status(404).json({ message: "Laporan Penjualan not found" });
       }
 
-      // Rollback stock changes for the existing item data
       for (const oldItem of laporanPenjualan.item) {
         const { _id, qty } = oldItem;
         const barang = await ModelBarang.findById(_id).session(session);
@@ -171,7 +162,6 @@ exports.updateLaporanPenjualan = async (req, res) => {
         }
       }
 
-      // Process new item data
       let subtotal = 0;
       for (const product of item) {
         const { _id, qty } = product;
@@ -193,7 +183,6 @@ exports.updateLaporanPenjualan = async (req, res) => {
       const ppnValue = subtotal * Number.parseFloat(ppn);
       const grand_total = subtotal + ppnValue;
 
-      // Update laporan penjualan
       laporanPenjualan.tanggal = tanggal;
       laporanPenjualan.no_invoice = no_invoice;
       laporanPenjualan.tgl_jatuhTempo = tgl_jatuhTempo;
@@ -201,6 +190,7 @@ exports.updateLaporanPenjualan = async (req, res) => {
       laporanPenjualan.ppn = Number.parseFloat(ppn);
       laporanPenjualan.subtotal = subtotal;
       laporanPenjualan.grand_total = grand_total;
+      laporanPenjualan.kepada = kepada; // Update field kepada
 
       await laporanPenjualan.save({ session });
 
@@ -217,11 +207,9 @@ exports.updateLaporanPenjualan = async (req, res) => {
       throw err;
     }
   } catch (err) {
-    res
-      .status(500)
-      .json({
-        message: "Error updating laporan penjualan",
-        error: err.message,
-      });
+    res.status(500).json({
+      message: "Error updating laporan penjualan",
+      error: err.message,
+    });
   }
 };
