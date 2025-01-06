@@ -45,10 +45,9 @@ exports.addKatalogBarang = async (req, res) => {
       harga,
       satuan,
       stok_awal,
-      masuk,
-      keluar,
-      stok_akhir,
     } = req.body;
+
+    const stok_akhir = stok_awal;
 
     const existingBarang = await ModelBarang.findOne({ kode_barang });
     if (existingBarang) {
@@ -63,8 +62,6 @@ exports.addKatalogBarang = async (req, res) => {
       harga,
       satuan,
       stok_awal,
-      masuk,
-      keluar,
       stok_akhir,
     });
 
