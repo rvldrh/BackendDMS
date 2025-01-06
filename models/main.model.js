@@ -8,8 +8,8 @@ const SchemaBarang = new mongoose.Schema(
     satuan: { type: String, required: true },
     harga: { type: Number, required: true },
     stok_awal: { type: Number, required: true },
-    masuk: { type: Number, required: true },
-    keluar: { type: Number, required: true },
+    masuk: { type: Number, required: false },
+    keluar: { type: Number, required: false },
     stok_akhir: { type: Number, required: true },
   },
   { collection: "katalog_barang" }
