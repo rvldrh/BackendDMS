@@ -1,53 +1,14 @@
 const { ModelBarang } = require("../models/main.model");
 
-// Get all barang with calculated stok_akhir
 exports.getKatalogBarang = async (req, res) => {
   try {
     const katalog_barang = await ModelBarang.find()
-      .populate("masuk", "qty_masuk") // Populate field qty_masuk
-      .populate("keluar", "qty_keluar") // Populate field qty_keluar
-      .exec();
-
-    // Calculate stok_akhir for each item
-    const katalogWithStokAkhir = katalog_barang.map((item) => {
-      const qtyMasuk = item.masuk.reduce((total, m) => total + m.qty_masuk, 0); // Total qty_masuk
-      const qtyKeluar = item.keluar.reduce((total, k) => total + k.qty_keluar, 0); // Total qty_keluar
-      const stokAkhir = item.stok_awal + qtyMasuk - qtyKeluar; // Calculate stok_akhir
-      return { ...item._doc, stok_akhir: stokAkhir };
-    });
-
-    res.status(200).json({
-      message: "katalog_barang retrieved successfully",
-      data: katalogWithStokAkhir,
-    });
-  } catch (err) {
-    res.status(500).json({
-      message: "Error retrieving katalog_barang",
-      error: err.message,
-    });
-  }
-};
-
-// Get barang by ID with calculated stok_akhir
-exports.getKatalogBarangById = async (req, res) => {
-  try {
-    const katalog_barang = await ModelBarang.findById(req.params.id)
       .populate("masuk", "qty_masuk")
       .populate("keluar", "qty_keluar")
       .exec();
-
-    if (!katalog_barang) {
-      return res.status(404).json({ message: "katalog_barang not found" });
-    }
-
-    // Calculate stok_akhir
-    const qtyMasuk = katalog_barang.masuk?.qty_masuk || 0;
-    const qtyKeluar = katalog_barang.keluar?.qty_keluar || 0;
-    const stokAkhir = katalog_barang.stok_awal + qtyMasuk - qtyKeluar;
-
     res.status(200).json({
       message: "katalog_barang retrieved successfully",
-      data: { ...katalog_barang._doc, stok_akhir: stokAkhir },
+      data: katalog_barang,
     });
   } catch (err) {
     res
@@ -56,14 +17,38 @@ exports.getKatalogBarangById = async (req, res) => {
   }
 };
 
-// Add barang with calculated stok_akhir
+exports.getKatalogBarangById = async (req, res) => {
+  try {
+    const katalog_barang = await ModelBarang.findById(req.params.id)
+      .populate("masuk", "qty_masuk")
+      .populate("keluar", "qty_keluar")
+      .exec();
+    if (!katalog_barang) {
+      return res.status(404).json({ message: "katalog_barang not found" });
+    }
+    res.status(200).json({
+      message: "katalog_barang retrieved successfully",
+      data: katalog_barang,
+    });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ message: "Error retrieving katalog_barang", error: err.message });
+  }
+};
+
 exports.addKatalogBarang = async (req, res) => {
   try {
-    const { kode_barang, nama_barang, harga, satuan, stok_awal } = req.body;
+    const {
+      kode_barang,
+      nama_barang,
+      harga,
+      satuan,
+      stok_awal,
+    } = req.body;
 
-    const stok_akhir = stok_awal; // Initial stok_akhir equals stok_awal
+    const stok_akhir = stok_awal;
 
-    // Check if kode_barang already exists
     const existingBarang = await ModelBarang.findOne({ kode_barang });
     if (existingBarang) {
       return res.status(400).json({
@@ -90,16 +75,38 @@ exports.addKatalogBarang = async (req, res) => {
       .json({ message: "Error creating product", error: err.message });
   }
 };
-
-// Update barang with calculated stok_akhir
 exports.updateKatalogBarang = async (req, res) => {
   try {
     const { id } = req.params;
-    const { kode_barang, nama_barang, harga, satuan, stok_awal } = req.body;
+    const {
+      kode_barang,
+      nama_barang,
+      harga,
+      satuan,
+      stok_awal,
+      masuk,
+      keluar,
+      stok_akhir,
+    } = req.body;
 
-    const product = await ModelBarang.findById(id)
-      .populate("masuk", "qty_masuk")
-      .populate("keluar", "qty_keluar");
+    if (!id) {
+      return res.status(400).json({ message: "ID is required" });
+    }
+
+    // Check if the kode_barang already exists for another product
+    if (kode_barang) {
+      const existingBarang = await ModelBarang.findOne({
+        kode_barang,
+        _id: { $ne: id },
+      });
+      if (existingBarang) {
+        return res.status(400).json({
+          message: `Barang dengan kode_barang '${kode_barang}' sudah ada. Silakan gunakan kode_barang yang berbeda.`,
+        });
+      }
+    }
+
+    const product = await ModelBarang.findById(id);
 
     if (!product) {
       return res.status(404).json({ message: "Barang not found" });
@@ -111,11 +118,9 @@ exports.updateKatalogBarang = async (req, res) => {
     if (harga !== undefined) product.harga = harga;
     if (satuan !== undefined) product.satuan = satuan;
     if (stok_awal !== undefined) product.stok_awal = stok_awal;
-
-    // Calculate stok_akhir
-    const qtyMasuk = product.masuk.reduce((total, m) => total + m.qty_masuk, 0);
-    const qtyKeluar = product.keluar.reduce((total, k) => total + k.qty_keluar, 0);
-    product.stok_akhir = (stok_awal || product.stok_awal) + qtyMasuk - qtyKeluar;
+    if (masuk !== undefined) product.masuk = masuk;
+    if (keluar !== undefined) product.keluar = keluar;
+    if (stok_akhir !== undefined) product.stok_akhir = stok_akhir;
 
     await product.save();
 
@@ -131,27 +136,23 @@ exports.updateKatalogBarang = async (req, res) => {
   }
 };
 
-
-// Delete barang
 exports.deleteKatalogBarang = async (req, res) => {
   try {
     const { id } = req.params;
-
     if (!id) {
       return res.status(400).json({ message: "ID is required" });
     }
-
     const product = await ModelBarang.findByIdAndDelete(id);
-
     if (!product) {
       return res.status(404).json({ message: "Product not found" });
     }
-
     res.status(200).json({ message: "Product successfully deleted" });
-  } catch (err) {
+  }
+  catch (err) {
     res.status(500).json({
       message: "Error deleting product",
       error: err.message,
     });
   }
-};
+  };
+  
