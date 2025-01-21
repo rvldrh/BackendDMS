@@ -14,7 +14,11 @@ const laporan_penjualan = require("./routes/laporan_penjualan.route");
 
 // Configure CORS with options
 
-app.use(cors());
+app.use(cors({
+  origin: 'https://dms-bms-frontend.vercel.app/', // Allow your frontend
+  methods: 'GET,POST,PUT,DELETE', // Allowed HTTP methods
+  credentials: true, // Include cookies if necessary
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
