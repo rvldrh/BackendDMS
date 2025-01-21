@@ -1,90 +1,49 @@
-const express = require('express');
-const mongoose = require('mongoose');
-const cors = require('cors');
-require('dotenv').config();
+const express = require("express");
+const mongoose = require("mongoose");
+const cors = require("cors"); // CORS package
+require("dotenv").config(); // Load .env file
 
 const app = express();
 
-const authRoutes = require('./routes/authRoutes');
-const transaksiRoutes = require('./routes/transaksiRoutes');
-const menuRoutes = require('./routes/menuRoutes');
-const siswaRoutes = require('./routes/siswaRoutes');
-const stanRoutes = require('./routes/stanRoutes');
-const diskonRoutes = require('./routes/diskonRoutes');
+// Import routes
+const barang_masuk = require("./routes/barang_masuk.route");
+const barang_keluar = require("./routes/barang_keluar.route");
+const katalog_barang = require("./routes/katalog_barang.route");
+const laporan = require("./routes/laporan.route");
+const laporan_penjualan = require("./routes/laporan_penjualan.route");
 
-const { protect } = require('./middleware/auth');
-
-const allowedOrigins = [
-  'https://dms-bms-frontend.vercel.app',
-  'http://localhost:3000' // for local development
-];
+// Configure CORS with options
 
 app.use(cors({
-  origin: (origin, callback) => {
-    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  origin: 'https://dms-bms-frontend.vercel.app/pages/katalogBarang', // Allow your frontend
+  methods: 'GET,POST,PUT,DELETE', // Allowed HTTP methods
+  credentials: true, // Include cookies if necessary
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Log DB_URL to check the environment variable
+console.log("DB_URL:", process.env.DB_URL);
 
-// console.log("MONGODB_URI:", process.env.MONGODB_URI);
-
+// Example routes
 app.get("/", (req, res) => {
-  res.send("API is running on port 5000!");
-});
-app.use('/auth', authRoutes);
-
-app.use('/transaksi', protect, transaksiRoutes);
-app.use('/menu', protect, menuRoutes); 
-
-app.use('/stan', stanRoutes);
-app.use('/diskon', diskonRoutes);
-
-
-app.use('/siswa', protect, (req, res, next) => {
-  if (req.user.role === 'admin_stan' || 
-      (req.user.role === 'siswa' && req.params.id === req.user.profileId.toString())) {
-    next();
-  } else {
-    res.status(403).json({
-      status: 'error',
-      message: 'You do not have permission to perform this action'
-    });
-  }
-}, siswaRoutes);
-
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(err.status || 500).json({
-    status: 'error',
-    message: err.message || 'Internal server error'
-  });
+  res.send("API is running on port 8008!");
 });
 
-app.use((req, res) => {
-  res.status(404).json({
-    status: 'error',
-    message: 'Route not found'
-  });
-});
+app.use("/barang_masuk", barang_masuk);
+app.use("/barang_keluar", barang_keluar);
+app.use("/katalog_barang", katalog_barang);
+app.use("/laporan", laporan);
+app.use("/laporan_penjualan", laporan_penjualan);
 
+// Connect to MongoDB
 mongoose
-  .connect(process.env.MONGODB_URI, { 
-    useNewUrlParser: true, 
-    useUnifiedTopology: true 
-  })
+  .connect(process.env.DB_URL, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log("Connected to MongoDB"))
   .catch((err) => console.error("MongoDB connection error:", err));
 
-
-const PORT = process.env.PORT || 5000;
+// Start the server
+const PORT = process.env.PORT || 8008; // Default to 8008 if PORT is not set
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
-}); 
+});
