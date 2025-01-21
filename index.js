@@ -14,7 +14,7 @@ const laporan_penjualan = require("./routes/laporan_penjualan.route");
 
 // Configure CORS with options
 app.use(cors({
-  origin: '*', 
+  origin: 'https://dms-bms-frontend.vercel.app/', 
   methods: 'GET,POST,PUT,DELETE', 
   credentials: true,
 }));
