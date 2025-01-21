@@ -13,11 +13,10 @@ const laporan = require("./routes/laporan.route");
 const laporan_penjualan = require("./routes/laporan_penjualan.route");
 
 // Configure CORS with options
-
 app.use(cors({
-  origin: '*', // Allow your frontend
-  methods: 'GET,POST,PUT,DELETE', // Allowed HTTP methods
-  credentials: true, // Include cookies if necessary
+  origin: '*', 
+  methods: 'GET,POST,PUT,DELETE', 
+  credentials: true,
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
