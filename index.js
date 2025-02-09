@@ -1,7 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
-const cors = require("cors"); // CORS package
-require("dotenv").config(); // Load .env file
+const cors = require("cors");
+require("dotenv").config();
 
 const app = express();
 
@@ -12,15 +12,26 @@ const katalog_barang = require("./routes/katalog_barang.route");
 const laporan = require("./routes/laporan.route");
 const laporan_penjualan = require("./routes/laporan_penjualan.route");
 
-// Configure CORS with options
-app.use(cors( 
-  {
-     origin: "*",
-     methods: ["GET", "POST", "PUT", "DELETE"],
-     allowedHeaders: ["Content-Type", "Authorization"],
-     credentials: true // Allow sending cookies
-  }
-));
+// Allowed origins for CORS
+const allowedOrigins = [
+  "*"
+];
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
+  })
+);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -29,7 +40,7 @@ console.log("DB_URL:", process.env.DB_URL);
 
 // Example routes
 app.get("/", (req, res) => {
-  res.send("Hello");
+  res.send("API is running!");
 });
 
 app.use("/barang_masuk", barang_masuk);
@@ -38,6 +49,22 @@ app.use("/katalog_barang", katalog_barang);
 app.use("/laporan", laporan);
 app.use("/laporan_penjualan", laporan_penjualan);
 
+// Error Handling Middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(err.status || 500).json({
+    status: "error",
+    message: err.message || "Internal server error",
+  });
+});
+
+app.use((req, res) => {
+  res.status(404).json({
+    status: "error",
+    message: "Route not found",
+  });
+});
+
 // Connect to MongoDB 
 mongoose
   .connect(process.env.DB_URL, { useNewUrlParser: true, useUnifiedTopology: true })
@@ -45,7 +72,7 @@ mongoose
   .catch((err) => console.error("MongoDB connection error:", err));
 
 // Start the server
-const PORT = process.env.PORT || 8008; // Default to 8008 if PORT is not set
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
