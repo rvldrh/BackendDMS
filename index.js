@@ -29,7 +29,7 @@ console.log("DB_URL:", process.env.DB_URL);
 
 // Example routes
 app.get("/", (req, res) => {
-  res.send("API is running on port 8008!");
+  res.send("Hello");
 });
 
 app.use("/barang_masuk", barang_masuk);
@@ -38,7 +38,7 @@ app.use("/katalog_barang", katalog_barang);
 app.use("/laporan", laporan);
 app.use("/laporan_penjualan", laporan_penjualan);
 
-// Connect to MongoDB
+// Connect to MongoDB 
 mongoose
   .connect(process.env.DB_URL, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log("Connected to MongoDB"))
