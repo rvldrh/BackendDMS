@@ -7,5 +7,6 @@ router.post("/", controller.addKatalogBarang);
 router.get("/:id", controller.getKatalogBarangById);
 router.put("/:id", controller.updateKatalogBarang);
 router.delete("/:id", controller.deleteKatalogBarang);
+router.get("/ddl", controller.katalog_barangDDL);
 
 module.exports = router;

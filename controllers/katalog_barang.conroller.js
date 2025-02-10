@@ -17,6 +17,20 @@ exports.getKatalogBarang = async (req, res) => {
   }
 };
 
+exports.katalog_barangDDL = async (req, res) => {
+  try {
+    const katalog_barang = await ModelBarang.find().select("kode_barang nama_barang _id");
+    res.status(200).json({
+      message: "katalog_barang retrieved successfully",
+      data: katalog_barang,
+    });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ message: "Error retrieving katalog_barang", error: err.message });
+  }
+};
+
 exports.getKatalogBarangById = async (req, res) => {
   try {
     const katalog_barang = await ModelBarang.findById(req.params.id)
