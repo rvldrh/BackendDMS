@@ -14,7 +14,7 @@ const laporan_penjualan = require("./routes/laporan_penjualan.route");
 
 // Konfigurasi CORS agar hanya mengizinkan domain tertentu
 const allowedOrigins = [
-  "https://dms-bms-frontend.vercel.app/api/",
+  "https://dms-bms-frontend.vercel.app/",
   "http://localhost:3000",
 ];
 
