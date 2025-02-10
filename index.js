@@ -12,51 +12,37 @@ const katalog_barang = require("./routes/katalog_barang.route");
 const laporan = require("./routes/laporan.route");
 const laporan_penjualan = require("./routes/laporan_penjualan.route");
 
-// Konfigurasi CORS agar hanya mengizinkan domain tertentu
+// ✅ Allowed Origins (Domain yang diizinkan)
 const allowedOrigins = [
   "https://dms-bms-frontend.vercel.app",
   "http://localhost:3000",
 ];
 
+// ✅ Middleware CORS dengan Validasi Dinamis
 app.use(
   cors({
     origin: function (origin, callback) {
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
+        console.log("Blocked by CORS:", origin); // Debugging log
         callback(new Error("Not allowed by CORS"));
       }
     },
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
-    optionsSuccessStatus: 200, // 🔥 Tambahkan ini
+    optionsSuccessStatus: 200,
   })
 );
-
-
-
-app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", allowedOrigins.includes(req.headers.origin) ? req.headers.origin : "");
-  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
-  res.header("Access-Control-Allow-Credentials", "true");
-  
-  if (req.method === "OPTIONS") {
-    return res.sendStatus(200);
-  }
-  
-  next();
-});
-
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Debugging: Log URL Database
+// ✅ Debugging: Log Database URL
 console.log("DB_URL:", process.env.DB_URL);
 
-// Routes
+// ✅ Routes
 app.get("/", (req, res) => {
   res.send("API is running!");
 });
@@ -67,7 +53,7 @@ app.use("/api/katalog_barang", katalog_barang);
 app.use("/api/laporan", laporan);
 app.use("/api/laporan_penjualan", laporan_penjualan);
 
-// Middleware untuk menangani route yang tidak ditemukan
+// ✅ Middleware untuk menangani route yang tidak ditemukan
 app.use((req, res) => {
   res.status(404).json({
     status: "error",
@@ -75,7 +61,7 @@ app.use((req, res) => {
   });
 });
 
-// Koneksi MongoDB
+// ✅ Koneksi MongoDB
 mongoose
   .connect(process.env.DB_URL, {
     useNewUrlParser: true,
@@ -84,8 +70,8 @@ mongoose
   .then(() => console.log("Connected to MongoDB"))
   .catch((err) => console.error("MongoDB connection error:", err));
 
-// Jalankan Server
+// ✅ Jalankan Server
 const PORT = process.env.PORT || 8008;
 app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+  console.log(`🚀 Server running at http://localhost:${PORT}`);
 });
