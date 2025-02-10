@@ -5,15 +5,17 @@ exports.addLaporanPenjualan = async (req, res) => {
   try {
     const { tanggal, no_invoice, tgl_jatuhTempo, item, ppn, kepada } = req.body;
 
+    // Validasi input
     if (
       !tanggal ||
       !no_invoice ||
       !tgl_jatuhTempo ||
-      !item ||
+      !Array.isArray(item) ||
+      item.length === 0 ||
       ppn === undefined ||
       !kepada
     ) {
-      return res.status(400).json({ message: "Missing required fields" });
+      return res.status(400).json({ message: "Missing or invalid required fields" });
     }
 
     const session = await mongoose.startSession();
@@ -21,9 +23,14 @@ exports.addLaporanPenjualan = async (req, res) => {
 
     try {
       let subtotal = 0;
+      const updatedItems = [];
 
       for (const product of item) {
         const { _id, qty } = product;
+
+        if (!mongoose.Types.ObjectId.isValid(_id)) {
+          throw new Error(`Invalid ObjectId: ${_id}`);
+        }
 
         const barang = await ModelBarang.findById(_id).session(session);
         if (!barang) {
@@ -31,13 +38,18 @@ exports.addLaporanPenjualan = async (req, res) => {
         }
 
         const itemTotal = barang.harga * qty;
-        product.jumlah = itemTotal;
         subtotal += itemTotal;
 
         barang.keluar += qty;
         barang.stok_akhir -= qty;
-
         await barang.save({ session });
+
+        // Simpan item yang diperbarui ke dalam array baru
+        updatedItems.push({
+          _id: barang._id, // Gunakan ID barang yang valid
+          qty: qty,
+          jumlah: itemTotal,
+        });
       }
 
       const ppnValue = subtotal * Number.parseFloat(ppn);
@@ -47,30 +59,34 @@ exports.addLaporanPenjualan = async (req, res) => {
         tanggal,
         no_invoice,
         tgl_jatuhTempo,
-        item,
+        item: updatedItems, // Gunakan item yang sudah diperbarui
         ppn: Number.parseFloat(ppn),
         subtotal,
         grand_total,
-        kepada, // Tambahkan field kepada
+        kepada,
       });
 
-      await newLaporanPenjualan.save({ session });
+      const savedLaporan = await newLaporanPenjualan.save({ session });
 
       await session.commitTransaction();
       session.endSession();
 
       res.status(201).json({
         message: "Laporan Penjualan created successfully",
-        data: newLaporanPenjualan,
+        data: savedLaporan,
       });
     } catch (err) {
       await session.abortTransaction();
       session.endSession();
-      throw err;
+      console.error("Transaction error:", err.message);
+      res.status(400).json({
+        message: "Error processing laporan penjualan",
+        error: err.message,
+      });
     }
   } catch (err) {
     res.status(500).json({
-      message: "Error creating laporan penjualan",
+      message: "Server error while creating laporan penjualan",
       error: err.message,
     });
   }
