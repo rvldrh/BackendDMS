@@ -14,7 +14,7 @@ const laporan_penjualan = require("./routes/laporan_penjualan.route");
 
 // Konfigurasi CORS agar hanya mengizinkan domain tertentu
 const allowedOrigins = [
-  "https://dms-bms-frontend.vercel.app/",
+  "https://dms-bms-frontend.vercel.app",
   "http://localhost:3000",
 ];
 
@@ -24,8 +24,10 @@ app.use(
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
+    optionsSuccessStatus: 200, // Tambahkan ini!
   })
 );
+
 
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", allowedOrigins.includes(req.headers.origin) ? req.headers.origin : "");
