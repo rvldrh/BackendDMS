@@ -47,11 +47,11 @@ app.get("/", (req, res) => {
   res.send("API is running!");
 });
 
-app.use("/api/barang_masuk", barang_masuk);
-app.use("/api/barang_keluar", barang_keluar);
-app.use("/api/katalog_barang", katalog_barang);
-app.use("/api/laporan", laporan);
-app.use("/api/laporan_penjualan", laporan_penjualan);
+app.use("/barang_masuk", barang_masuk);
+app.use("/barang_keluar", barang_keluar);
+app.use("/katalog_barang", katalog_barang);
+app.use("/laporan", laporan);
+app.use("/laporan_penjualan", laporan_penjualan);
 
 // ✅ Middleware untuk menangani route yang tidak ditemukan
 app.use((req, res) => {
