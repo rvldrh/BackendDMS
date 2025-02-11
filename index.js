@@ -15,6 +15,7 @@ const laporan_penjualan = require("./routes/laporan_penjualan.route");
 const allowedOrigins = [
   "https://dms-bms-frontend.vercel.app",
   "http://localhost:3000",
+  "mongodb+srv://rvldrh:berlianmudasukses@dmscluster.0gb6p.mongodb.net/Database_DMS", // Tambahkan asal muasal server Anda
 ];
 
 const allowCors = fn => async (req, res) => {
@@ -43,11 +44,9 @@ app.use(
     // Validasi dinamis untuk memastikan bahwa permintaan berasal dari domain yang diizinkan
     if (allowedOrigins.includes(req.headers.origin)) {
       return Promise.resolve();
-    } else {
-      console.log("Blocked by CORS:", req.headers.origin);
-      const error = new Error('Not allowed by CORS');
-      error.status = 403;
-      throw error;
+    } else if (req.method === 'OPTIONS') {
+      res.status(200).end();
+      return;
     }
   })
 );
