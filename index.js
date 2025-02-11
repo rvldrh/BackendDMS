@@ -1,6 +1,5 @@
 const express = require("express");
 const mongoose = require("mongoose");
-const cors = require("cors");
 require("dotenv").config();
 
 const app = express();
@@ -18,21 +17,38 @@ const allowedOrigins = [
   "http://localhost:3000",
 ];
 
-// ✅ Middleware CORS dengan Validasi Dinamis
+const allowCors = fn => async (req, res) => {
+  // Set headers untuk CORS
+  res.setHeader('Access-Control-Allow-Credentials', true);
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
+  res.setHeader(
+    'Access-Control-Allow-Headers',
+    'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
+  );
+
+  // Jika method adalah OPTIONS, maka return 200 OK
+  if (req.method === 'OPTIONS') {
+    res.status(200).end();
+    return;
+  }
+
+  // Lalu jalankan fungsi asli
+  return await fn(req, res);
+};
+
+// 🔒 Middleware CORS dengan Validasi Dinamis
 app.use(
-  cors({
-    origin: function (origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        console.log("Blocked by CORS:", origin); // Debugging log
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: true,
-    optionsSuccessStatus: 200,
+  allowCors((req, res) => {
+    // Validasi dinamis untuk memastikan bahwa permintaan berasal dari domain yang diizinkan
+    if (allowedOrigins.includes(req.headers.origin)) {
+      return Promise.resolve();
+    } else {
+      console.log("Blocked by CORS:", req.headers.origin);
+      const error = new Error('Not allowed by CORS');
+      error.status = 403;
+      throw error;
+    }
   })
 );
 
