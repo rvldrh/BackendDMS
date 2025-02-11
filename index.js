@@ -15,27 +15,19 @@ const laporan_penjualan = require("./routes/laporan_penjualan.route");
 const allowedOrigins = [
   "https://dms-bms-frontend.vercel.app",
   "http://localhost:3000",
-  "mongodb+srv://rvldrh:berlianmudasukses@dmscluster.0gb6p.mongodb.net/Database_DMS", // Tambahkan asal muasal server Anda
 ];
 
 const allowCors = fn => async (req, res) => {
-  // Set headers untuk CORS
-  res.setHeader('Access-Control-Allow-Credentials', true);
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
-  res.setHeader(
-    'Access-Control-Allow-Headers',
-    'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
-  );
-
-  // Jika method adalah OPTIONS, maka return 200 OK
-  if (req.method === 'OPTIONS') {
+  if (allowedOrigins.includes(req.headers.origin)) {
+    return Promise.resolve();
+  } else if (req.method === 'OPTIONS') {
     res.status(200).end();
     return;
   }
-
-  // Lalu jalankan fungsi asli
-  return await fn(req, res);
+  // Jika tidak ada asal muasal yang diizinkan, lemparkan kesalahan dengan status 403
+  const error = new Error('Not allowed by CORS');
+  error.status = 403;
+  throw error;
 };
 
 // 🔒 Middleware CORS dengan Validasi Dinamis
