@@ -1,5 +1,6 @@
 const express = require("express");
 const mongoose = require("mongoose");
+const cors = require("cors");
 require("dotenv").config();
 
 const app = express();
@@ -17,29 +18,21 @@ const allowedOrigins = [
   "http://localhost:3000",
 ];
 
-const allowCors = fn => async (req, res) => {
-  if (allowedOrigins.includes(req.headers.origin)) {
-    return Promise.resolve();
-  } else if (req.method === 'OPTIONS') {
-    res.status(200).end();
-    return;
-  }
-  // Jika tidak ada asal muasal yang diizinkan, lemparkan kesalahan dengan status 403
-  const error = new Error('Not allowed by CORS');
-  error.status = 403;
-  throw error;
-};
-
-// 🔒 Middleware CORS dengan Validasi Dinamis
+// ✅ Middleware CORS dengan Validasi Dinamis
 app.use(
-  allowCors((req, res) => {
-    // Validasi dinamis untuk memastikan bahwa permintaan berasal dari domain yang diizinkan
-    if (allowedOrigins.includes(req.headers.origin)) {
-      return Promise.resolve();
-    } else if (req.method === 'OPTIONS') {
-      res.status(200).end();
-      return;
-    }
+  cors({
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        console.log("Blocked by CORS:", origin); // Debugging log
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
+    optionsSuccessStatus: 200,
   })
 );
 
