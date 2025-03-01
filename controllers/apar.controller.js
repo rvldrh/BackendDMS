@@ -6,7 +6,7 @@ exports.createAPAR = async (req, res) => {
   try {
     const { jenis, nama_pemilik, tanggal_refill, tanggal_exp } = req.body;
 
-    const newApar = new Apar({
+    const newApar = new ModelAPAR({
       jenis,
       nama_pemilik,
       tanggal_refill,
