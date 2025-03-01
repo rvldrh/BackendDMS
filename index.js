@@ -16,6 +16,7 @@ const apar = require("./routes/apar.route");
 const allowedOrigins = [
   "https://dms-bms-frontend.vercel.app",
   "http://localhost:3000",
+  "http://localhost:3001",
 ];
 
 // ✅ Middleware CORS dengan Validasi Dinamis
