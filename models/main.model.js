@@ -9,7 +9,6 @@ const SchemaAPAR = new Schema(
     nama_pemilik: { type: String, required: true },
     tanggal_refill: { type: Date, required: true },
     tanggal_exp: { type: Date, required: true },
-    foto: { type: String, default: ''},
   }
 )
 
