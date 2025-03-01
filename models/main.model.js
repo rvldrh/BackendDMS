@@ -2,6 +2,17 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 // Schema for Barang (Product)
+
+const SchemaAPAR = new Schema(
+  {
+    jenis: { type: String, required: true },
+    nama_pemilik: { type: String, required: true },
+    tanggal_refill: { type: Date, required: true },
+    tanggal_exp: { type: Date, required: true },
+    foto: { type: String, required: true },
+  }
+)
+
 const SchemaBarang = new Schema(
   {
     kode_barang: { type: String, required: true, unique: true },
@@ -98,7 +109,7 @@ const ModelLaporan = mongoose.model("laporan_pembelian_barang", SchemaLaporan);
 const ModelMasuk = mongoose.model("barang_masuk", SchemaMasuk);
 const ModelKeluar = mongoose.model("barang_keluar", SchemaKeluar);
 const ModelLaporanPenjualan = mongoose.model("laporan_penjualan_barang", SchemaLaporanPenjualan);
-
+const ModelAPAR = mongoose.model("apar", SchemaAPAR);
 // Export models
 module.exports = {
   ModelBarang,
@@ -106,5 +117,6 @@ module.exports = {
   ModelMasuk,
   ModelKeluar,
   ModelLaporanPenjualan,
+  ModelAPAR,
 };
 
