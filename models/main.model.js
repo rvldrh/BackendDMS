@@ -6,8 +6,8 @@ const Schema = mongoose.Schema;
 const SchemaAPAR = new Schema(
   {
     jenis: { type: String, required: true },
-    nama_pemilik: { type: String, required: true },
-    tanggal_refill: { type: Date, required: true },
+    outlet: { type: String, required: true },
+    marketing: { type: String, required: true },
     tanggal_exp: { type: Date, required: true },
     foto: { type: String, default: ''},
   }

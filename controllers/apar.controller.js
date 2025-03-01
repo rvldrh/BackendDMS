@@ -3,25 +3,28 @@ const { ModelAPAR } = require("../models/main.model"); // Import model ModelAPAR
 // ✅ Tambah ModelAPA
 
 exports.createAPAR = async (req, res) => {
-  try {
-    const { jenis, nama_pemilik, tanggal_refill, tanggal_exp } = req.body;
-
-    const newApar = new ModelAPAR({
-      jenis,
-      nama_pemilik,
-      tanggal_refill,
-      tanggal_exp,
-    });
-
-    await newApar.save();
-    res
-      .status(201)
-      .json({ message: "APAR berhasil ditambahkan", data: newApar });
-  } catch (error) {
-    console.error("Error menambahkan APAR:", error);
-    res.status(500).json({ message: "Terjadi kesalahan di server" });
-  }
-};
+    try {
+      const { jenis, outlet, marketing, tanggal_exp } = req.body;
+  
+      if (!jenis || !nama_pemilik || !marketing || !tanggal_exp) {
+        return res.status(400).json({ message: "Harap isi semua field yang diperlukan!" });
+      }
+  
+      const newApar = new ModelAPAR({
+        jenis,
+        outlet,
+        marketing,
+        tanggal_exp,
+      });
+  
+      await newApar.save();
+      res.status(201).json({ message: "APAR berhasil ditambahkan", data: newApar });
+    } catch (error) {
+      console.error("Error menambahkan APAR:", error);
+      res.status(500).json({ message: "Terjadi kesalahan di server" });
+    }
+  };
+  
 
 // ✅ Ambil Semua ModelAPAR
 exports.getAllAPAR = async (req, res) => {
