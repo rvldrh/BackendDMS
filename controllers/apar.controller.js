@@ -1,32 +1,32 @@
 const {ModelAPAR} = require("../models/main.model"); // Import model ModelAPAR
 
-// ✅ Tambah ModelAPAR
+// ✅ Tambah ModelAPA
+
 exports.createAPAR = async (req, res) => {
-    try {
-      const { jenis, nama_pemilik, tanggal_refill, tanggal_exp } = req.body;
-      const foto = req.file ? `/img/menuImg/${req.file.filename}` : null; // Ambil path foto dari Multer
-  
-      console.log(jenis, nama_pemilik, tanggal_refill, tanggal_exp, foto); // Debugging
-  
-      if (!jenis || !nama_pemilik || !tanggal_refill || !tanggal_exp || !foto) {
-        return res.status(400).json({ status: "error", message: "Semua field wajib diisi" });
-      }
-  
-      const newAPAR = new ModelAPAR({
-        jenis,
-        nama_pemilik,
-        tanggal_refill,
-        tanggal_exp,
-        foto,
-      });
-  
-      await newAPAR.save();
-      res.status(201).json({ status: "success", data: newAPAR });
-    } catch (error) {
-      res.status(500).json({ status: "error", message: error.message });
+  try {
+    const { jenis, nama_pemilik, tanggal_refill, tanggal_exp } = req.body;
+    const foto = req.file ? `/uploads/${req.file.filename}` : null; // Simpan path gambar
+
+    // Validasi input
+    if (!jenis || !nama_pemilik || !tanggal_refill || !tanggal_exp || !foto) {
+      return res.status(400).json({ status: "error", message: "Semua field wajib diisi" });
     }
-  };
-  
+
+    const newAPAR = new ModelAPAR({
+      jenis,
+      nama_pemilik,
+      tanggal_refill,
+      tanggal_exp,
+      foto,
+    });
+
+    await newAPAR.save();
+    res.status(201).json({ status: "success", data: newAPAR });
+  } catch (error) {
+    res.status(500).json({ status: "error", message: error.message });
+  }
+};
+
 
 // ✅ Ambil Semua ModelAPAR
 exports.getAllAPAR = async (req, res) => {

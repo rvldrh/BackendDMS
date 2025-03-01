@@ -11,7 +11,7 @@ const storage = multer.diskStorage({
     cb(null, "D:/vsc/DMS_PT_Berlian_Muda_Sukses/dmsfenext/public/img/apar");
   },
   filename: (req, file, cb) => {
-    const fileName = "menu-image-" + Date.now() + path.extname(file.originalname);
+    const fileName = + Date.now() + path.extname(file.originalname);
     cb(null, fileName);
   },
 });
