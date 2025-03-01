@@ -6,7 +6,7 @@ exports.createAPAR = async (req, res) => {
     try {
       const { jenis, outlet, marketing, tanggal_exp } = req.body;
   
-      if (!jenis || !nama_pemilik || !marketing || !tanggal_exp) {
+      if (!jenis || !outlet || !marketing || !tanggal_exp) {
         return res.status(400).json({ message: "Harap isi semua field yang diperlukan!" });
       }
   
