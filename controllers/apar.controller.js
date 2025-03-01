@@ -5,7 +5,7 @@ const {ModelAPAR} = require("../models/main.model"); // Import model ModelAPAR
 exports.createAPAR = async (req, res) => {
   try {
     const { jenis, nama_pemilik, tanggal_refill, tanggal_exp } = req.body;
-    const foto = req.file ? `/uploads/${req.file.filename}` : null; // Simpan path gambar
+    const foto = req.file ? `${req.file.filename}` : null; // Simpan path gambar
 
     // Validasi input
     if (!jenis || !nama_pemilik || !tanggal_refill || !tanggal_exp || !foto) {
