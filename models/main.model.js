@@ -103,6 +103,16 @@ const SchemaLaporanPenjualan = new Schema(
   { collection: "laporan_penjualan_barang" }
 );
 
+const SchemaLaporanMarketing = new Schema(
+  {
+    hari: { type: String, required: true },   
+    marketing: { type: String, required: true },
+    rencana: { type: String, required: true },
+    tujuan: { type: String, required: true },
+    remark: { type: String, required: true },
+  }
+)
+
 // Create Mongoose Models
 const ModelBarang = mongoose.model("katalog_barang", SchemaBarang);
 const ModelLaporan = mongoose.model("laporan_pembelian_barang", SchemaLaporan);
@@ -110,6 +120,7 @@ const ModelMasuk = mongoose.model("barang_masuk", SchemaMasuk);
 const ModelKeluar = mongoose.model("barang_keluar", SchemaKeluar);
 const ModelLaporanPenjualan = mongoose.model("laporan_penjualan_barang", SchemaLaporanPenjualan);
 const ModelAPAR = mongoose.model("apar", SchemaAPAR);
+const ModelLaporanMarketing = mongoose.model("laporan_marketing", SchemaLaporanMarketing);
 // Export models
 module.exports = {
   ModelBarang,
@@ -118,5 +129,6 @@ module.exports = {
   ModelKeluar,
   ModelLaporanPenjualan,
   ModelAPAR,
+  ModelLaporanMarketing,
 };
 

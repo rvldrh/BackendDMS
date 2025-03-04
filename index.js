@@ -12,11 +12,10 @@ const katalog_barang = require("./routes/katalog_barang.route");
 const laporan = require("./routes/laporan.route");
 const laporan_penjualan = require("./routes/laporan_penjualan.route");
 const apar = require("./routes/apar.route");
+const laporanMarketing = require("./routes/laporanMarketing.route");
 // ✅ Allowed Origins (Domain yang diizinkan)
 const allowedOrigins = [
   "https://dms-bms-frontend.vercel.app",
-  "http://localhost:3000",
-  "http://localhost:3001",
 ];
 
 // ✅ Middleware CORS dengan Validasi Dinamis
@@ -56,6 +55,7 @@ app.use("/api/katalog_barang", katalog_barang);
 app.use("/api/laporan", laporan);
 app.use("/api/laporan_penjualan", laporan_penjualan);
 app.use("/api/apar", apar);
+app.use("/api/laporan_marketing", laporanMarketing);
 
 // ✅ Middleware untuk menangani route yang tidak ditemukan
 app.use((req, res) => {
