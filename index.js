@@ -16,6 +16,7 @@ const laporanMarketing = require("./routes/laporanMarketing.route");
 // ✅ Allowed Origins (Domain yang diizinkan)
 const allowedOrigins = [
   "https://dms-bms-frontend.vercel.app",
+  "http://localhost:3000",
 ];
 
 // ✅ Middleware CORS dengan Validasi Dinamis
