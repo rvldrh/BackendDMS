@@ -113,6 +113,21 @@ const SchemaLaporanMarketing = new Schema(
   }
 )
 
+const SchemaLaporanJadwal = new Schema(
+  {
+    tanggal: { type: Date, required: true },     
+    outlet: { type: String, required: true },
+    kpdm: { type: String, required: true },
+    remark: { type: String, required: false },
+    foto: { type: String, required: false },
+    topik_pembahasan: { type: String, required: false },
+    isRemarkUpdated: { type: Boolean, default: false},
+    isDeleted: { type: Boolean, default: false },
+  }
+)
+
+
+
 // Create Mongoose Models
 const ModelBarang = mongoose.model("katalog_barang", SchemaBarang);
 const ModelLaporan = mongoose.model("laporan_pembelian_barang", SchemaLaporan);
@@ -121,6 +136,7 @@ const ModelKeluar = mongoose.model("barang_keluar", SchemaKeluar);
 const ModelLaporanPenjualan = mongoose.model("laporan_penjualan_barang", SchemaLaporanPenjualan);
 const ModelAPAR = mongoose.model("apar", SchemaAPAR);
 const ModelLaporanMarketing = mongoose.model("laporan_marketing", SchemaLaporanMarketing);
+const ModelLaporanJadwal = mongoose.model("laporan_jadwal", SchemaLaporanJadwal);
 // Export models
 module.exports = {
   ModelBarang,
@@ -130,5 +146,6 @@ module.exports = {
   ModelLaporanPenjualan,
   ModelAPAR,
   ModelLaporanMarketing,
+  ModelLaporanJadwal
 };
 
