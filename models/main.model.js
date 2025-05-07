@@ -40,7 +40,7 @@ const SchemaLaporan = new Schema(
           required: true,
         },
         total: { type: Number, required: true },
-        discount: { type: Number, required: true },
+        discount: { type: Number, required: false },
         vol: { type: Number, required: true },
       },
     ],
