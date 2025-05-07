@@ -99,6 +99,7 @@ const SchemaLaporanPenjualan = new Schema(
     ppn: { type: Number, required: true },
     grand_total: { type: Number, required: false },
     kepada: { type: String, required: true },
+    basicOutlet: { type: String, required: true }
   },
   { collection: "laporan_penjualan_barang" }
 );

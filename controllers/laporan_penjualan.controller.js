@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 
 exports.addLaporanPenjualan = async (req, res) => {
   try {
-    const { tanggal, no_invoice, tgl_jatuhTempo, item, ppn, kepada } = req.body;
+    const { tanggal, no_invoice, tgl_jatuhTempo, item, ppn, kepada, basicOutlet } = req.body;
 
     // Validasi input
     if (
@@ -13,7 +13,8 @@ exports.addLaporanPenjualan = async (req, res) => {
       !Array.isArray(item) ||
       item.length === 0 ||
       ppn === undefined ||
-      !kepada
+      !kepada ||
+      !basicOutlet
     ) {
       return res.status(400).json({ message: "Missing or invalid required fields" });
     }
@@ -64,6 +65,7 @@ exports.addLaporanPenjualan = async (req, res) => {
         subtotal,
         grand_total,
         kepada,
+        basicOutlet
       });
 
       const savedLaporan = await newLaporanPenjualan.save({ session });
