@@ -1,21 +1,11 @@
-const { ModelLaporanPenjualan, ModelBarang } = require("../models/main.model");
+const { ModelLaporanPenjualan, ModelBarang, ModelKeluar } = require("../models/main.model");
 const mongoose = require("mongoose");
 
 exports.addLaporanPenjualan = async (req, res) => {
   try {
     const { tanggal, no_invoice, tgl_jatuhTempo, item, ppn, kepada, basicOutlet } = req.body;
 
-    // Validasi input
-    if (
-      !tanggal ||
-      !no_invoice ||
-      !tgl_jatuhTempo ||
-      !Array.isArray(item) ||
-      item.length === 0 ||
-      ppn === undefined ||
-      !kepada ||
-      !basicOutlet
-    ) {
+    if (!tanggal || !no_invoice || !tgl_jatuhTempo || !Array.isArray(item) || item.length === 0 || ppn === undefined || !kepada || !basicOutlet) {
       return res.status(400).json({ message: "Missing or invalid required fields" });
     }
 
@@ -25,6 +15,7 @@ exports.addLaporanPenjualan = async (req, res) => {
     try {
       let subtotal = 0;
       const updatedItems = [];
+      const barangKeluarRecords = [];
 
       for (const product of item) {
         const { _id, qty } = product;
@@ -38,6 +29,10 @@ exports.addLaporanPenjualan = async (req, res) => {
           throw new Error(`Barang dengan ID ${_id} tidak ditemukan.`);
         }
 
+        if (barang.stok_akhir < qty) {
+          throw new Error(`Stok barang ${barang.nama_barang} tidak mencukupi.`);
+        }
+
         const itemTotal = barang.harga * qty;
         subtotal += itemTotal;
 
@@ -45,11 +40,18 @@ exports.addLaporanPenjualan = async (req, res) => {
         barang.stok_akhir -= qty;
         await barang.save({ session });
 
-        // Simpan item yang diperbarui ke dalam array baru
         updatedItems.push({
-          _id: barang._id, // Gunakan ID barang yang valid
-          qty: qty,
+          _id: barang._id,
+          qty,
           jumlah: itemTotal,
+        });
+
+        barangKeluarRecords.push({
+          tanggal,
+          kode_barang: barang.kode_barang,
+          nama_barang: barang.nama_barang,
+          qty_keluar: qty,
+          keterangan: kepada,
         });
       }
 
@@ -60,15 +62,21 @@ exports.addLaporanPenjualan = async (req, res) => {
         tanggal,
         no_invoice,
         tgl_jatuhTempo,
-        item: updatedItems, // Gunakan item yang sudah diperbarui
+        item: updatedItems,
         ppn: Number.parseFloat(ppn),
         subtotal,
         grand_total,
         kepada,
-        basicOutlet
+        basicOutlet,
       });
 
       const savedLaporan = await newLaporanPenjualan.save({ session });
+
+      // Tambahkan data ke tabel barang_keluar
+      for (const keluar of barangKeluarRecords) {
+        const newBarangKeluar = new ModelKeluar(keluar);
+        await newBarangKeluar.save({ session });
+      }
 
       await session.commitTransaction();
       session.endSession();
@@ -93,6 +101,7 @@ exports.addLaporanPenjualan = async (req, res) => {
     });
   }
 };
+
 
 exports.getLaporanPenjualan = async (req, res) => {
   try {
