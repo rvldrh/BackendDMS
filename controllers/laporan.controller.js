@@ -14,18 +14,22 @@ exports.addLaporan = async (req, res) => {
       keterangan,
     } = req.body;
 
+    // Parsing angka
+    const parsedOngkir = Number(ongkir);
+    const parsedDiscount = Number(discount);
+
+    // Validasi
     if (
       !tgl_transaksi ||
       !supplier ||
-      !barang ||
-      !ongkir ||
-      discount === undefined ||
+      !Array.isArray(barang) || barang.length === 0 ||
+      isNaN(parsedOngkir) ||
+      isNaN(parsedDiscount) ||
       !status ||
       !tgl_pelunasan ||
       !keterangan
     ) {
-      return toast.error("Missing required fields");
-
+      return res.status(400).json({ message: "Missing or invalid required fields" });
     }
 
     const session = await mongoose.startSession();
@@ -36,32 +40,35 @@ exports.addLaporan = async (req, res) => {
 
       for (const item of barang) {
         const { _id, vol } = item;
+        const volume = Number(vol);
 
         const product = await ModelBarang.findById(_id).session(session);
         if (!product) {
-          toast.error(`Barang dengan ID ${_id} tidak ditemukan.`);
-
+          await session.abortTransaction();
+          session.endSession();
+          return res.status(404).json({ message: `Barang dengan ID ${_id} tidak ditemukan.` });
         }
 
-        const itemTotal = product.harga * vol;
+        const itemTotal = product.harga * volume;
         item.total = itemTotal;
         total += itemTotal;
 
-        product.masuk += vol;
+        // Update stok barang
+        product.masuk += volume;
         product.stok_akhir = product.stok_awal + product.masuk - product.keluar;
 
         await product.save({ session });
       }
 
-      const discountValue = total * Number.parseFloat(discount);
-      const grand_total = total - discountValue + ongkir;
+      const discountValue = total * parsedDiscount;
+      const grand_total = total - discountValue + parsedOngkir;
 
       const newLaporan = new ModelLaporan({
         tgl_transaksi,
         supplier,
         barang,
-        ongkir,
-        discount: Number.parseFloat(discount),
+        ongkir: parsedOngkir,
+        discount: parsedDiscount,
         grand_total,
         total,
         status,
@@ -96,13 +103,15 @@ exports.addLaporan = async (req, res) => {
     } catch (err) {
       await session.abortTransaction();
       session.endSession();
-      toast.error(err.message);
-
+      console.error(err);
+      res.status(500).json({ message: err.message || "Internal server error" });
     }
   } catch (err) {
-    toast.error(err.message)
+    console.error(err);
+    res.status(500).json({ message: err.message || "Internal server error" });
   }
 };
+
 
 exports.getLaporan = async (req, res) => {
   try {
