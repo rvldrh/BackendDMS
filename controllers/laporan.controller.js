@@ -1,4 +1,4 @@
-const { ModelLaporan, ModelBarang } = require("../models/main.model");
+const { ModelLaporan, ModelBarang, ModelMasuk } = require("../models/main.model");
 const mongoose = require("mongoose");
 
 exports.addLaporan = async (req, res) => {
@@ -69,11 +69,26 @@ exports.addLaporan = async (req, res) => {
 
       await newLaporan.save({ session });
 
+      // Tambahkan data ke model BarangMasuk
+      for (const item of barang) {
+        const product = await ModelBarang.findById(item._id).session(session);
+
+        const barangMasuk = new ModelMasuk({
+          tanggal: tgl_transaksi,
+          kode_barang: product.kode_barang,
+          nama_barang: product.nama_barang,
+          qty_masuk: item.vol,
+          keterangan: keterangan,
+        });
+
+        await barangMasuk.save({ session });
+      }
+
       await session.commitTransaction();
       session.endSession();
 
       res.status(201).json({
-        message: "Laporan created successfully and stock updated",
+        message: "Laporan created successfully, stock updated, and barang masuk recorded",
         data: newLaporan,
       });
     } catch (err) {
