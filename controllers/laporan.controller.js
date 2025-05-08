@@ -24,7 +24,8 @@ exports.addLaporan = async (req, res) => {
       !tgl_pelunasan ||
       !keterangan
     ) {
-      return res.status(400).json({ message: "Missing required fields" });
+      return toast.error("Missing required fields");
+
     }
 
     const session = await mongoose.startSession();
@@ -38,7 +39,8 @@ exports.addLaporan = async (req, res) => {
 
         const product = await ModelBarang.findById(_id).session(session);
         if (!product) {
-          throw new Error(`Barang dengan ID ${_id} tidak ditemukan.`);
+          toast.error(`Barang dengan ID ${_id} tidak ditemukan.`);
+
         }
 
         const itemTotal = product.harga * vol;
@@ -94,13 +96,11 @@ exports.addLaporan = async (req, res) => {
     } catch (err) {
       await session.abortTransaction();
       session.endSession();
-      throw err;
+      toast.error(err.message);
+
     }
   } catch (err) {
-    res.status(500).json({
-      message: "Error creating laporan",
-      error: err.message,
-    });
+    toast.error(err.message)
   }
 };
 
