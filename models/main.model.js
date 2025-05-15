@@ -18,7 +18,13 @@ const SchemaBarang = new Schema(
     kode_barang: { type: String, required: true, unique: true },
     nama_barang: { type: String, required: true },
     satuan: { type: String, required: true },
-    harga: { type: Number, required: true },
+    harga: [
+      {
+        tgl_beli: { type: Date, required: false },
+        harga: { type: Number, required: false },
+        sisa_qty : { type: Number, required: false }
+      }
+    ],
     stok_awal: { type: Number, required: true },
     masuk: { type: Number, default: 0 }, // Default to 0
     keluar: { type: Number, default: 0 }, // Default to 0
@@ -39,6 +45,7 @@ const SchemaLaporan = new Schema(
           ref: "katalog_barang",
           required: true,
         },
+        harga: { type: Number, required: true },
         total: { type: Number, required: true },
         discount: { type: Number, required: false },
         vol: { type: Number, required: true },
@@ -62,6 +69,7 @@ const SchemaMasuk = new Schema(
     nama_barang: { type: String, required: true },
     qty_masuk: { type: Number, required: true },
     keterangan: { type: String, required: true },
+    harga_satuan: { type: Number, required: true }
   },
   { collection: "barang_masuk" }
 );
@@ -74,6 +82,7 @@ const SchemaKeluar = new Schema(
     nama_barang: { type: String, required: true },
     qty_keluar: { type: Number, required: true },
     keterangan: { type: String, required: true },
+    harga_satuan: { type: Number, required: true }
   },
   { collection: "barang_keluar" }
 );
