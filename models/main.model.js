@@ -52,6 +52,7 @@ const SchemaLaporan = new Schema(
       },
     ],
     ongkir: { type: Number, required: true },
+    ppn: { type: Number, required: true },
     discount: { type: Number, required: true },
     grand_total: { type: Number, required: true },
     status: { type: String, required: true },
