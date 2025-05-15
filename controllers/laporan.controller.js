@@ -164,7 +164,7 @@ exports.getLaporanById = async (req, res) => {
     const laporan = await ModelLaporan.findById(id)
       .populate("barang._id", "satuan stok_awal stok_akhir harga")
       .exec();
- 
+
     if (!laporan) {
       return res.status(404).json({ message: "Laporan not found" });
     }
