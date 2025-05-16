@@ -8,6 +8,6 @@ router.get("/:id", LaporanJadwalController.getLaporanById);
 router.put("/:id", LaporanJadwalController.updateLaporan);
 router.put("/delete/:id", LaporanJadwalController.deleteLaporan);
 router.put("/remark/:id", LaporanJadwalController.updateLaporanRemark);
-
+router.get("/jadwal/deleted", LaporanJadwalController.getDeletedLaporan)
 
 module.exports = router;

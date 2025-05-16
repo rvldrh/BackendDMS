@@ -293,3 +293,27 @@ exports.updateLaporanRemark = async (req, res) => {
     res.status(500).json({ status: "error", message: error.message });
   }
 };
+
+// ✅ Ambil Semua Laporan yang Sudah Dihapus (Soft Deleted)
+exports.getDeletedLaporan = async (req, res) => {
+  try {
+    const deletedLaporan = await ModelLaporanJadwal.find({ isDeleted: true });
+
+    // Format tanggal agar hanya tampil YYYY-MM-DD
+    const formattedList = deletedLaporan.map((item) => ({
+      ...item._doc,
+      tanggal: item.tanggal.toISOString().split("T")[0],
+    }));
+
+    res.status(200).json({
+      status: "success",
+      data: formattedList,
+    });
+  } catch (error) {
+    console.error("Error mengambil laporan yang dihapus:", error);
+    res.status(500).json({
+      status: "error",
+      message: error.message,
+    });
+  }
+};
