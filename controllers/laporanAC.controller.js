@@ -41,8 +41,7 @@ exports.addLaporan = async (req, res) => {
       hasil,
       foto: uploadResult.secure_url,
     });
-    console.log("BODY:", req.body);
-    console.log("FILE:", req.file);
+
 
     const savedLaporan = await newLaporan.save();
     res.status(201).json(savedLaporan);
@@ -70,56 +69,56 @@ exports.getLaporanById = async (req, res) => {
 // Update laporan (tanpa ganti foto)
 
 // Update hanya untuk field "hasil" dan hanya bisa dilakukan pada tanggalPengerjaan (hingga jam 23:59)
+// PATCH laporan - hanya ruangan, status, hasil, dan foto yang bisa diubah
 exports.updateLaporan = async (req, res) => {
   try {
-    const { hasil } = req.body;
-
-    if (!hasil) {
-      return res.status(400).json({ message: 'Field "hasil" wajib diisi' });
-    }
+    const { ruangan, status, hasil } = req.body;
 
     const laporan = await ModelLaporanAC.findById(req.params.id);
     if (!laporan) {
       return res.status(404).json({ message: "Laporan tidak ditemukan" });
     }
 
-    const tanggalPengerjaan = new Date(laporan.tanggalPengerjaan);
-    const sekarang = new Date();
-
-    // Cek apakah tanggal hari ini sama dengan tanggal pengerjaan
-    const sameDate =
-      tanggalPengerjaan.getFullYear() === sekarang.getFullYear() &&
-      tanggalPengerjaan.getMonth() === sekarang.getMonth() &&
-      tanggalPengerjaan.getDate() === sekarang.getDate();
-
-    if (!sameDate) {
-      return res.status(403).json({
-        message: 'Field "hasil" hanya bisa diubah pada tanggal pengerjaan',
+    // Validasi minimal satu field diubah
+    if (!ruangan && !status && !hasil && !req.file) {
+      return res.status(400).json({
+        message: "Setidaknya satu dari ruangan, status, hasil, atau foto harus diisi",
       });
     }
 
-    // Cek apakah waktu sekarang masih sebelum jam 12 malam
-    const batasWaktu = new Date();
-    batasWaktu.setHours(23, 59, 59, 999);
+    // Update field jika ada
+    if (ruangan) laporan.ruangan = ruangan;
+    if (status) laporan.status = status;
+    if (hasil) laporan.hasil = hasil;
 
-    if (sekarang > batasWaktu) {
-      return res.status(403).json({
-        message:
-          'Waktu untuk mengedit "hasil" telah berakhir (batas maksimal jam 23:59)',
+    // Jika ada file foto baru
+    if (req.file) {
+      const uploadResult = await new Promise((resolve, reject) => {
+        cloudinary.uploader
+          .upload_stream({ folder: "laporan-ac" }, (err, result) => {
+            if (err) reject(err);
+            else resolve(result);
+          })
+          .end(req.file.buffer);
       });
+
+      laporan.foto = uploadResult.secure_url;
     }
 
-    // Update hasil
-    laporan.hasil = hasil;
     await laporan.save();
 
-    res.status(200).json({ message: "Hasil berhasil diupdate", data: laporan });
+    res.status(200).json({
+      message: "Laporan berhasil diupdate",
+      data: laporan,
+    });
   } catch (err) {
-    res
-      .status(500)
-      .json({ message: "Gagal mengupdate hasil laporan", error: err.message });
+    res.status(500).json({
+      message: "Gagal mengupdate laporan",
+      error: err.message,
+    });
   }
 };
+
 
 // Hapus laporan
 exports.deleteLaporan = async (req, res) => {
