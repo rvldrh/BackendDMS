@@ -82,11 +82,20 @@ exports.updateLaporan = async (req, res) => {
       return res.status(404).json({ message: "Laporan tidak ditemukan" });
     }
 
-    // Hanya update jika value tidak kosong
-    if (ruangan && ruangan.trim() !== "") laporan.ruangan = ruangan;
-    if (status && status.trim() !== "") laporan.status = status;
-    if (hasil && hasil.trim() !== "") laporan.hasil = hasil;
+    // Update hanya jika value bertipe string dan tidak kosong
+    if (typeof ruangan === "string" && ruangan.trim() !== "") {
+      laporan.ruangan = ruangan;
+    }
 
+    if (typeof status === "string" && status.trim() !== "") {
+      laporan.status = status;
+    }
+
+    if (typeof hasil === "string" && hasil.trim() !== "") {
+      laporan.hasil = hasil;
+    }
+
+    // Cek dan update foto jika ada
     if (req.file) {
       const uploadResult = await new Promise((resolve, reject) => {
         cloudinary.uploader.upload_stream({ folder: "laporan-ac" }, (err, result) => {
@@ -110,6 +119,7 @@ exports.updateLaporan = async (req, res) => {
     });
   }
 };
+
 
 
 // DELETE Hapus Laporan
