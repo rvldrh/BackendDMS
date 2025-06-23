@@ -6,7 +6,7 @@ const upload = require('../middleware/upload');
 router.get('/', laporanController.getAllLaporan);
 router.post('/', upload.single('foto'), laporanController.addLaporan);
 router.get('/:id', laporanController.getLaporanById);
-router.patch('/:id', upload.single('foto'), laporanController.updateLaporan);
+router.put('/:id', upload.single('foto'), laporanController.updateLaporan);
 router.delete('/:id', laporanController.deleteLaporan);
 
 module.exports = router;
