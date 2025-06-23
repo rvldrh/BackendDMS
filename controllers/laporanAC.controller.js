@@ -22,15 +22,18 @@ exports.addLaporan = async (req, res) => {
 
     if (!tanggalPengerjaan || !ruangan || !status || !req.file) {
       return res.status(400).json({
-        message: "Field tanggalPengerjaan, ruangan, status, dan foto wajib diisi",
+        message:
+          "Field tanggalPengerjaan, ruangan, status, dan foto wajib diisi",
       });
     }
 
     const uploadResult = await new Promise((resolve, reject) => {
-      cloudinary.uploader.upload_stream({ folder: "laporan-ac" }, (err, result) => {
-        if (err) reject(err);
-        else resolve(result);
-      }).end(req.file.buffer);
+      cloudinary.uploader
+        .upload_stream({ folder: "laporan-ac" }, (err, result) => {
+          if (err) reject(err);
+          else resolve(result);
+        })
+        .end(req.file.buffer);
     });
 
     const newLaporan = new ModelLaporanAC({
@@ -79,15 +82,10 @@ exports.updateLaporan = async (req, res) => {
       return res.status(404).json({ message: "Laporan tidak ditemukan" });
     }
 
-    if (!ruangan && !status && !hasil && !req.file) {
-      return res.status(400).json({
-        message: "Setidaknya satu dari ruangan, status, hasil, atau foto harus diisi",
-      });
-    }
-
-    if (ruangan) laporan.ruangan = ruangan;
-    if (status) laporan.status = status;
-    if (hasil) laporan.hasil = hasil;
+    // Hanya update jika value tidak kosong
+    if (ruangan && ruangan.trim() !== "") laporan.ruangan = ruangan;
+    if (status && status.trim() !== "") laporan.status = status;
+    if (hasil && hasil.trim() !== "") laporan.hasil = hasil;
 
     if (req.file) {
       const uploadResult = await new Promise((resolve, reject) => {
@@ -112,6 +110,7 @@ exports.updateLaporan = async (req, res) => {
     });
   }
 };
+
 
 // DELETE Hapus Laporan
 exports.deleteLaporan = async (req, res) => {
