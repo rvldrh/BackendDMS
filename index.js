@@ -14,7 +14,7 @@ const laporan_penjualan = require("./routes/laporan_penjualan.route");
 const apar = require("./routes/apar.route");
 const laporanMarketing = require("./routes/laporanMarketing.route");
 const laporanJadwal = require("./routes/laporanJadwal.route");
-
+const laporanAC = require('./routes/laporanAC.route')
 // ✅ Allowed Origins (Domain yang diizinkan)
 const allowedOrigins = [
   "https://dms-bms-frontend.vercel.app",
@@ -60,6 +60,7 @@ app.use("/api/laporan_penjualan", laporan_penjualan);
 app.use("/api/apar", apar);
 app.use("/api/laporan_marketing", laporanMarketing);
 app.use("/api/laporan_jadwal", laporanJadwal);
+app.use("/api/laporan_AC", laporanAC)
 
 
 // ✅ Middleware untuk menangani route yang tidak ditemukan

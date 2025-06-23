@@ -137,6 +137,15 @@ const SchemaLaporanJadwal = new Schema(
   }
 )
 
+const SchemaLaporanAC = new Schema(
+  {
+    tanggalPengerjaan: {type: Date, required: true},
+    ruangan: {type: String, required: true},
+    status: {type: String, required: true},
+    hasil: {type: String, required: false},
+    foto: {type: String, required: true},
+  }
+)
 
 
 // Create Mongoose Models
@@ -148,6 +157,7 @@ const ModelLaporanPenjualan = mongoose.model("laporan_penjualan_barang", SchemaL
 const ModelAPAR = mongoose.model("apar", SchemaAPAR);
 const ModelLaporanMarketing = mongoose.model("laporan_marketing", SchemaLaporanMarketing);
 const ModelLaporanJadwal = mongoose.model("laporan_jadwal", SchemaLaporanJadwal);
+const ModelLaporanAC = mongoose.model("laporan_ac", SchemaLaporanAC);
 // Export models
 module.exports = {
   ModelBarang,
@@ -157,6 +167,7 @@ module.exports = {
   ModelLaporanPenjualan,
   ModelAPAR,
   ModelLaporanMarketing,
-  ModelLaporanJadwal
+  ModelLaporanJadwal,
+  ModelLaporanAC
 };
 
