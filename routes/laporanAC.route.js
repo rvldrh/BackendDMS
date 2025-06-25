@@ -15,7 +15,7 @@ router.post(
 
 router.get("/:id", laporanController.getLaporanById);
 router.delete("/:id", laporanController.deleteLaporan);
-router.put(
+router.patch(
   "/:id",
   upload.fields([
     { name: "fotoAwal", maxCount: 1 },
