@@ -15,33 +15,65 @@ exports.getAllLaporan = async (req, res) => {
   }
 };
 
-// POST Tambah Laporan Baru
+// POST Tambah Laporan Baru (sekali saja, tidak bisa edit)
+// POST Tambah Laporan Baru (semua field wajib)
 exports.addLaporan = async (req, res) => {
   try {
-    const { tanggalPengerjaan, ruangan, status, hasil } = req.body;
+    const {
+      tanggalPengerjaan,
+      ruangan,
+      status,
+      hasil,
+      teknisi,
+    } = req.body;
 
-    if (!tanggalPengerjaan || !ruangan || !status || !req.file) {
+    // Validasi semua field harus ada
+    if (
+      !tanggalPengerjaan ||
+      !ruangan ||
+      !status ||
+      !hasil ||
+      !teknisi ||
+      !req.files?.fotoAwal ||
+      !req.files?.fotoPengerjaan
+    ) {
       return res.status(400).json({
         message:
-          "Field tanggalPengerjaan, ruangan, status, dan foto wajib diisi",
+          "Semua field wajib diisi: tanggalPengerjaan, ruangan, status, hasil, teknisi, fotoAwal, dan fotoPengerjaan",
       });
     }
 
-    const uploadResult = await new Promise((resolve, reject) => {
-      cloudinary.uploader
-        .upload_stream({ folder: "laporan-ac" }, (err, result) => {
+    // Upload fotoAwal ke Cloudinary
+    const uploadFotoAwal = await new Promise((resolve, reject) => {
+      cloudinary.uploader.upload_stream(
+        { folder: "laporan-ac" },
+        (err, result) => {
           if (err) reject(err);
           else resolve(result);
-        })
-        .end(req.file.buffer);
+        }
+      ).end(req.files.fotoAwal[0].buffer);
     });
 
+    // Upload fotoPengerjaan ke Cloudinary
+    const uploadFotoPengerjaan = await new Promise((resolve, reject) => {
+      cloudinary.uploader.upload_stream(
+        { folder: "laporan-ac" },
+        (err, result) => {
+          if (err) reject(err);
+          else resolve(result);
+        }
+      ).end(req.files.fotoPengerjaan[0].buffer);
+    });
+
+    // Simpan ke database
     const newLaporan = new ModelLaporanAC({
       tanggalPengerjaan,
       ruangan,
       status,
       hasil,
-      foto: uploadResult.secure_url,
+      teknisi,
+      fotoAwal: uploadFotoAwal.secure_url,
+      fotoPengerjaan: uploadFotoPengerjaan.secure_url,
     });
 
     const saved = await newLaporan.save();
@@ -54,6 +86,7 @@ exports.addLaporan = async (req, res) => {
     });
   }
 };
+
 
 // GET Satu Laporan by ID
 exports.getLaporanById = async (req, res) => {
@@ -72,56 +105,6 @@ exports.getLaporanById = async (req, res) => {
   }
 };
 
-// PATCH Update Laporan
-exports.updateLaporan = async (req, res) => {
-  try {
-    const { ruangan, status, hasil } = req.body;
-
-    const laporan = await ModelLaporanAC.findById(req.params.id);
-    if (!laporan) {
-      return res.status(404).json({ message: "Laporan tidak ditemukan" });
-    }
-
-    // Update hanya jika value bertipe string dan tidak kosong
-    if (typeof ruangan === "string" && ruangan.trim() !== "") {
-      laporan.ruangan = ruangan;
-    }
-
-    if (typeof status === "string" && status.trim() !== "") {
-      laporan.status = status;
-    }
-
-    if (typeof hasil === "string" && hasil.trim() !== "") {
-      laporan.hasil = hasil;
-    }
-
-    // Cek dan update foto jika ada
-    if (req.file) {
-      const uploadResult = await new Promise((resolve, reject) => {
-        cloudinary.uploader.upload_stream({ folder: "laporan-ac" }, (err, result) => {
-          if (err) reject(err);
-          else resolve(result);
-        }).end(req.file.buffer);
-      });
-      laporan.foto = uploadResult.secure_url;
-    }
-
-    const updated = await laporan.save();
-    res.status(200).json({
-      message: "Laporan berhasil diupdate",
-      data: updated,
-    });
-  } catch (err) {
-    console.error("Error updateLaporan:", err);
-    res.status(500).json({
-      message: "Gagal mengupdate laporan",
-      error: err.message,
-    });
-  }
-};
-
-
-
 // DELETE Hapus Laporan
 exports.deleteLaporan = async (req, res) => {
   try {
@@ -135,6 +118,66 @@ exports.deleteLaporan = async (req, res) => {
     console.error("Error deleteLaporan:", err);
     res.status(500).json({
       message: "Gagal menghapus laporan",
+      error: err.message,
+    });
+  }
+};
+
+// ⚠️ Fitur update di-nonaktifkan
+// PATCH Update Laporan
+exports.updateLaporan = async (req, res) => {
+  try {
+    const { tanggalPengerjaan, ruangan, status, hasil, teknisi } = req.body;
+
+    const laporan = await ModelLaporanAC.findById(req.params.id);
+    if (!laporan) {
+      return res.status(404).json({ message: "Laporan tidak ditemukan" });
+    }
+
+    // Update field jika ada dan valid
+    if (tanggalPengerjaan) laporan.tanggalPengerjaan = tanggalPengerjaan;
+    if (ruangan) laporan.ruangan = ruangan;
+    if (status) laporan.status = status;
+    if (hasil) laporan.hasil = hasil;
+    if (teknisi) laporan.teknisi = teknisi;
+
+    // Update fotoAwal jika dikirim
+    if (req.files?.fotoAwal) {
+      const uploadFotoAwal = await new Promise((resolve, reject) => {
+        cloudinary.uploader.upload_stream(
+          { folder: "laporan-ac" },
+          (err, result) => {
+            if (err) reject(err);
+            else resolve(result);
+          }
+        ).end(req.files.fotoAwal[0].buffer);
+      });
+      laporan.fotoAwal = uploadFotoAwal.secure_url;
+    }
+
+    // Update fotoPengerjaan jika dikirim
+    if (req.files?.fotoPengerjaan) {
+      const uploadFotoPengerjaan = await new Promise((resolve, reject) => {
+        cloudinary.uploader.upload_stream(
+          { folder: "laporan-ac" },
+          (err, result) => {
+            if (err) reject(err);
+            else resolve(result);
+          }
+        ).end(req.files.fotoPengerjaan[0].buffer);
+      });
+      laporan.fotoPengerjaan = uploadFotoPengerjaan.secure_url;
+    }
+
+    const updated = await laporan.save();
+    res.status(200).json({
+      message: "Laporan berhasil diupdate",
+      data: updated,
+    });
+  } catch (err) {
+    console.error("Error updateLaporan:", err);
+    res.status(500).json({
+      message: "Gagal mengupdate laporan",
       error: err.message,
     });
   }

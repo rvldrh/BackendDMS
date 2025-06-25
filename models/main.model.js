@@ -142,8 +142,10 @@ const SchemaLaporanAC = new Schema(
     tanggalPengerjaan: {type: Date, required: true},
     ruangan: {type: String, required: true},
     status: {type: String, required: true},
-    hasil: {type: String, required: false},
-    foto: {type: String, required: true},
+    hasil: {type: String, required: true},
+    teknisi: {type: String, required: true},
+    fotoAwal: {type: String, required: true},
+    fotoPengerjaan: {type: String, required: true},
   }
 )
 
