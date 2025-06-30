@@ -209,15 +209,17 @@ exports.addHasilToLaporan = async (req, res) => {
       return res.status(404).json({ message: "Laporan tidak ditemukan" });
     }
 
-    // ❌ Cegah penambahan jika sudah ada 2 hasil atau lebih
+    if (!Array.isArray(laporan.hasil)) {
+      laporan.hasil = []; // 💡 fallback jika rusak
+    }
+
     if (laporan.hasil.length >= 2) {
       return res.status(403).json({
         message: "Hasil hanya dapat ditambahkan maksimal satu kali setelah input awal.",
       });
     }
 
-    // ✅ Tambah hasil baru dan update waktu terakhir penambahan
-    laporan.hasil.push(hasil);
+    laporan.hasil.push(hasil); // ✅ tambahkan string ke array
     laporan.lastAddedHasil = new Date();
 
     await laporan.save();
@@ -227,10 +229,10 @@ exports.addHasilToLaporan = async (req, res) => {
       data: laporan,
     });
   } catch (err) {
+    console.error("Error addHasilToLaporan:", err);
     res.status(500).json({
       message: "Gagal menambahkan hasil",
       error: err.message,
     });
   }
 };
-
