@@ -209,9 +209,15 @@ exports.addHasilToLaporan = async (req, res) => {
       return res.status(404).json({ message: "Laporan tidak ditemukan" });
     }
 
-    // Perbaiki jika hasil bukan array
+    // 🔧 FIX: Jika hasil bukan array, paksa ubah jadi array of string
     if (!Array.isArray(laporan.hasil)) {
-      laporan.hasil = typeof laporan.hasil === "string" ? [laporan.hasil] : [];
+      if (typeof laporan.hasil === "string") {
+        laporan.hasil = [laporan.hasil];
+      } else if (typeof laporan.hasil === "object" && laporan.hasil !== null) {
+        laporan.hasil = [JSON.stringify(laporan.hasil)]; // fallback darurat
+      } else {
+        laporan.hasil = [];
+      }
     }
 
     if (laporan.hasil.length >= 2) {
