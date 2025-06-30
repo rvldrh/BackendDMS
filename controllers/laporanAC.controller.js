@@ -198,10 +198,10 @@ exports.updateLaporan = async (req, res) => {
 exports.addHasilToLaporan = async (req, res) => {
   try {
     const { id } = req.params;
-    const { hasilBaru } = req.body;
+    const { hasil } = req.body;
 
-    if (!hasilBaru || typeof hasilBaru !== "string") {
-      return res.status(400).json({ message: "hasilBaru harus berupa string" });
+    if (!hasil || typeof hasil !== "string") {
+      return res.status(400).json({ message: "hasil harus berupa string" });
     }
 
     const laporan = await ModelLaporanAC.findById(id);
@@ -217,7 +217,7 @@ exports.addHasilToLaporan = async (req, res) => {
     }
 
     // ✅ Tambah hasil baru dan update waktu terakhir penambahan
-    laporan.hasil.push(hasilBaru);
+    laporan.hasil.push(hasil);
     laporan.lastAddedHasil = new Date();
 
     await laporan.save();
