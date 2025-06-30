@@ -23,7 +23,7 @@ router.patch(
   ]),
   laporanController.updateLaporan
 );
-router.patch('/:id/hasil', laporanController.addHasilToLaporan);
+router.put('/:id/hasil', laporanController.addHasilToLaporan);
 
 
 module.exports = router;
