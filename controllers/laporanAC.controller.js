@@ -209,8 +209,9 @@ exports.addHasilToLaporan = async (req, res) => {
       return res.status(404).json({ message: "Laporan tidak ditemukan" });
     }
 
+    // Perbaiki jika hasil bukan array
     if (!Array.isArray(laporan.hasil)) {
-      laporan.hasil = []; // 💡 fallback jika rusak
+      laporan.hasil = typeof laporan.hasil === "string" ? [laporan.hasil] : [];
     }
 
     if (laporan.hasil.length >= 2) {
@@ -219,7 +220,7 @@ exports.addHasilToLaporan = async (req, res) => {
       });
     }
 
-    laporan.hasil.push(hasil); // ✅ tambahkan string ke array
+    laporan.hasil.push(hasil);
     laporan.lastAddedHasil = new Date();
 
     await laporan.save();
