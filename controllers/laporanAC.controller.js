@@ -43,6 +43,17 @@ exports.addLaporan = async (req, res) => {
       });
     }
 
+    // Siapkan array hasil
+    let hasilArray = [];
+
+    // Kalau status 'Kerusakan' → hasil sebagai penjelasan kerusakan
+    if (status === "Kerusakan") {
+      hasilArray = [hasil];
+    } else {
+      // Tetap array meski hanya satu
+      hasilArray = Array.isArray(hasil) ? hasil : [hasil];
+    }
+
     // Upload fotoAwal ke Cloudinary
     const uploadFotoAwal = await new Promise((resolve, reject) => {
       cloudinary.uploader.upload_stream(
@@ -70,7 +81,7 @@ exports.addLaporan = async (req, res) => {
       tanggalPengerjaan,
       ruangan,
       status,
-      hasil,
+      hasil: hasilArray,
       teknisi,
       fotoAwal: uploadFotoAwal.secure_url,
       fotoPengerjaan: uploadFotoPengerjaan.secure_url,
@@ -86,6 +97,7 @@ exports.addLaporan = async (req, res) => {
     });
   }
 };
+
 
 
 // GET Satu Laporan by ID
@@ -182,3 +194,43 @@ exports.updateLaporan = async (req, res) => {
     });
   }
 };
+
+exports.addHasilToLaporan = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { hasilBaru } = req.body;
+
+    if (!hasilBaru || typeof hasilBaru !== "string") {
+      return res.status(400).json({ message: "hasilBaru harus berupa string" });
+    }
+
+    const laporan = await ModelLaporanAC.findById(id);
+    if (!laporan) {
+      return res.status(404).json({ message: "Laporan tidak ditemukan" });
+    }
+
+    // ❌ Cegah penambahan jika sudah ada 2 hasil atau lebih
+    if (laporan.hasil.length >= 2) {
+      return res.status(403).json({
+        message: "Hasil hanya dapat ditambahkan maksimal satu kali setelah input awal.",
+      });
+    }
+
+    // ✅ Tambah hasil baru dan update waktu terakhir penambahan
+    laporan.hasil.push(hasilBaru);
+    laporan.lastAddedHasil = new Date();
+
+    await laporan.save();
+
+    res.status(200).json({
+      message: "Hasil berhasil ditambahkan",
+      data: laporan,
+    });
+  } catch (err) {
+    res.status(500).json({
+      message: "Gagal menambahkan hasil",
+      error: err.message,
+    });
+  }
+};
+

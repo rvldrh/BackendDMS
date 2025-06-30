@@ -3,15 +3,13 @@ const Schema = mongoose.Schema;
 
 // Schema for Barang (Product)
 
-const SchemaAPAR = new Schema(
-  {
-    jenis: { type: String, required: true },
-    outlet: { type: String, required: true },
-    marketing: { type: String, required: true },
-    tanggal_exp: { type: Date, required: true },
-    foto: { type: String, default: ''},
-  }
-)
+const SchemaAPAR = new Schema({
+  jenis: { type: String, required: true },
+  outlet: { type: String, required: true },
+  marketing: { type: String, required: true },
+  tanggal_exp: { type: Date, required: true },
+  foto: { type: String, default: "" },
+});
 
 const SchemaBarang = new Schema(
   {
@@ -22,8 +20,8 @@ const SchemaBarang = new Schema(
       {
         tgl_beli: { type: Date, required: false },
         harga: { type: Number, required: false },
-        sisa_qty : { type: Number, required: false }
-      }
+        sisa_qty: { type: Number, required: false },
+      },
     ],
     stok_awal: { type: Number, required: true },
     masuk: { type: Number, default: 0 }, // Default to 0
@@ -70,7 +68,7 @@ const SchemaMasuk = new Schema(
     nama_barang: { type: String, required: true },
     qty_masuk: { type: Number, required: true },
     keterangan: { type: String, required: true },
-    harga_satuan: { type: Number, required: true }
+    harga_satuan: { type: Number, required: true },
   },
   { collection: "barang_masuk" }
 );
@@ -83,7 +81,7 @@ const SchemaKeluar = new Schema(
     nama_barang: { type: String, required: true },
     qty_keluar: { type: Number, required: true },
     keterangan: { type: String, required: true },
-    harga_satuan: { type: Number, required: true }
+    harga_satuan: { type: Number, required: true },
   },
   { collection: "barang_keluar" }
 );
@@ -109,56 +107,61 @@ const SchemaLaporanPenjualan = new Schema(
     ppn: { type: Number, required: true },
     grand_total: { type: Number, required: false },
     kepada: { type: String, required: true },
-    basicOutlet: { type: String, required: true }
+    basicOutlet: { type: String, required: true },
   },
   { collection: "laporan_penjualan_barang" }
 );
 
-const SchemaLaporanMarketing = new Schema(
-  {
-    hari: { type: String, required: true },   
-    marketing: { type: String, required: true },
-    rencana: { type: String, required: true },
-    tujuan: { type: String, required: true },
-    remark: { type: String, required: true },
-  }
-)
+const SchemaLaporanMarketing = new Schema({
+  hari: { type: String, required: true },
+  marketing: { type: String, required: true },
+  rencana: { type: String, required: true },
+  tujuan: { type: String, required: true },
+  remark: { type: String, required: true },
+});
 
-const SchemaLaporanJadwal = new Schema(
-  {
-    tanggal: { type: Date, required: true },     
-    outlet: { type: String, required: true },
-    kpdm: { type: String, required: true },
-    remark: { type: String, required: false },
-    foto: { type: String, required: false },
-    topik_pembahasan: { type: String, required: false },
-    isRemarkUpdated: { type: Boolean, default: false},
-    isDeleted: { type: Boolean, default: false },
-  }
-)
+const SchemaLaporanJadwal = new Schema({
+  tanggal: { type: Date, required: true },
+  outlet: { type: String, required: true },
+  kpdm: { type: String, required: true },
+  remark: { type: String, required: false },
+  foto: { type: String, required: false },
+  topik_pembahasan: { type: String, required: false },
+  isRemarkUpdated: { type: Boolean, default: false },
+  isDeleted: { type: Boolean, default: false },
+});
 
 const SchemaLaporanAC = new Schema(
   {
-    tanggalPengerjaan: {type: Date, required: true},
-    ruangan: {type: String, required: true},
-    status: {type: String, required: true},
-    hasil: {type: String, required: false},
-    teknisi: {type: String, required: true},
-    fotoAwal: {type: String, required: true},
-    fotoPengerjaan: {type: String, required: true},
-  }
-)
-
+    tanggalPengerjaan: { type: Date, required: true },
+    ruangan: { type: String, required: true },
+    status: { type: String, required: true },
+    hasil: { type: [String], default: [] },
+    teknisi: { type: String, required: true },
+    fotoAwal: { type: String, required: true },
+    fotoPengerjaan: { type: String, required: true },
+  },
+  { timestamps: true }
+);
 
 // Create Mongoose Models
 const ModelBarang = mongoose.model("katalog_barang", SchemaBarang);
 const ModelLaporan = mongoose.model("laporan_pembelian_barang", SchemaLaporan);
 const ModelMasuk = mongoose.model("barang_masuk", SchemaMasuk);
 const ModelKeluar = mongoose.model("barang_keluar", SchemaKeluar);
-const ModelLaporanPenjualan = mongoose.model("laporan_penjualan_barang", SchemaLaporanPenjualan);
+const ModelLaporanPenjualan = mongoose.model(
+  "laporan_penjualan_barang",
+  SchemaLaporanPenjualan
+);
 const ModelAPAR = mongoose.model("apar", SchemaAPAR);
-const ModelLaporanMarketing = mongoose.model("laporan_marketing", SchemaLaporanMarketing);
-const ModelLaporanJadwal = mongoose.model("laporan_jadwal", SchemaLaporanJadwal);
+const ModelLaporanMarketing = mongoose.model(
+  "laporan_marketing",
+  SchemaLaporanMarketing
+);
+const ModelLaporanJadwal = mongoose.model(
+  "laporan_jadwal",
+  SchemaLaporanJadwal
+);
 const ModelLaporanAC = mongoose.model("laporan_ac", SchemaLaporanAC);
 // Export models
 module.exports = {
@@ -170,6 +173,5 @@ module.exports = {
   ModelAPAR,
   ModelLaporanMarketing,
   ModelLaporanJadwal,
-  ModelLaporanAC
+  ModelLaporanAC,
 };
-

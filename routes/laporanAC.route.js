@@ -23,5 +23,7 @@ router.patch(
   ]),
   laporanController.updateLaporan
 );
+router.patch('/:id/hasil', laporanController.addHasilToLaporan);
+
 
 module.exports = router;
