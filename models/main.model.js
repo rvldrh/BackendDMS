@@ -140,6 +140,8 @@ const SchemaLaporanAC = new Schema(
     teknisi: { type: String, required: true },
     fotoAwal: { type: String, required: true },
     fotoPengerjaan: { type: String, required: true },
+    fotoCekFreon: { type: String, required: true },
+    fotoAkhir: { type: String, required: true },
   },
   { timestamps: true }
 );

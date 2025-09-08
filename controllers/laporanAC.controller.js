@@ -57,23 +57,53 @@ exports.addLaporan = async (req, res) => {
     // Upload fotoAwal ke Cloudinary
     const uploadFotoAwal = await new Promise((resolve, reject) => {
       cloudinary.uploader.upload_stream(
-        { folder: "laporan-ac" },
+        { folder },
         (err, result) => {
           if (err) reject(err);
           else resolve(result);
         }
-      ).end(req.files.fotoAwal[0].buffer);
+      );
+  
+      // Kalau file berbentuk buffer (multer biasa)
+      if (file.buffer) {
+        uploadStream.end(file.buffer);
+      } 
+      // Kalau file berbentuk base64 (kamera/canvas frontend)
+      else if (file.base64) {
+        const buffer = Buffer.from(
+          file.base64.replace(/^data:image\/\w+;base64,/, ""),
+          "base64"
+        );
+        uploadStream.end(buffer);
+      } else {
+        reject(new Error("Format file tidak dikenali (harus buffer atau base64)"));
+      }
     });
 
     // Upload fotoPengerjaan ke Cloudinary
     const uploadFotoPengerjaan = await new Promise((resolve, reject) => {
       cloudinary.uploader.upload_stream(
-        { folder: "laporan-ac" },
+        { folder },
         (err, result) => {
           if (err) reject(err);
           else resolve(result);
         }
-      ).end(req.files.fotoPengerjaan[0].buffer);
+      );
+  
+      // Kalau file berbentuk buffer (multer biasa)
+      if (file.buffer) {
+        uploadStream.end(file.buffer);
+      } 
+      // Kalau file berbentuk base64 (kamera/canvas frontend)
+      else if (file.base64) {
+        const buffer = Buffer.from(
+          file.base64.replace(/^data:image\/\w+;base64,/, ""),
+          "base64"
+        );
+        uploadStream.end(buffer);
+      } else {
+        reject(new Error("Format file tidak dikenali (harus buffer atau base64)"));
+      }
     });
 
     // Simpan ke database
@@ -157,12 +187,27 @@ exports.updateLaporan = async (req, res) => {
     if (req.files?.fotoAwal) {
       const uploadFotoAwal = await new Promise((resolve, reject) => {
         cloudinary.uploader.upload_stream(
-          { folder: "laporan-ac" },
+          { folder },
           (err, result) => {
             if (err) reject(err);
             else resolve(result);
           }
-        ).end(req.files.fotoAwal[0].buffer);
+        );
+    
+        // Kalau file berbentuk buffer (multer biasa)
+        if (file.buffer) {
+          uploadStream.end(file.buffer);
+        } 
+        // Kalau file berbentuk base64 (kamera/canvas frontend)
+        else if (file.base64) {
+          const buffer = Buffer.from(
+            file.base64.replace(/^data:image\/\w+;base64,/, ""),
+            "base64"
+          );
+          uploadStream.end(buffer);
+        } else {
+          reject(new Error("Format file tidak dikenali (harus buffer atau base64)"));
+        }
       });
       laporan.fotoAwal = uploadFotoAwal.secure_url;
     }
@@ -171,12 +216,27 @@ exports.updateLaporan = async (req, res) => {
     if (req.files?.fotoPengerjaan) {
       const uploadFotoPengerjaan = await new Promise((resolve, reject) => {
         cloudinary.uploader.upload_stream(
-          { folder: "laporan-ac" },
+          { folder },
           (err, result) => {
             if (err) reject(err);
             else resolve(result);
           }
-        ).end(req.files.fotoPengerjaan[0].buffer);
+        );
+    
+        // Kalau file berbentuk buffer (multer biasa)
+        if (file.buffer) {
+          uploadStream.end(file.buffer);
+        } 
+        // Kalau file berbentuk base64 (kamera/canvas frontend)
+        else if (file.base64) {
+          const buffer = Buffer.from(
+            file.base64.replace(/^data:image\/\w+;base64,/, ""),
+            "base64"
+          );
+          uploadStream.end(buffer);
+        } else {
+          reject(new Error("Format file tidak dikenali (harus buffer atau base64)"));
+        }
       });
       laporan.fotoPengerjaan = uploadFotoPengerjaan.secure_url;
     }
