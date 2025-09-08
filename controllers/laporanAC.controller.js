@@ -62,22 +62,9 @@ exports.addLaporan = async (req, res) => {
           if (err) reject(err);
           else resolve(result);
         }
-      );
-  
+        ).end(req.files.fotoAwal[0].buffer);
+
       // Kalau file berbentuk buffer (multer biasa)
-      if (file.buffer) {
-        uploadStream.end(file.buffer);
-      } 
-      // Kalau file berbentuk base64 (kamera/canvas frontend)
-      else if (file.base64) {
-        const buffer = Buffer.from(
-          file.base64.replace(/^data:image\/\w+;base64,/, ""),
-          "base64"
-        );
-        uploadStream.end(buffer);
-      } else {
-        reject(new Error("Format file tidak dikenali (harus buffer atau base64)"));
-      }
     });
 
     // Upload fotoPengerjaan ke Cloudinary
@@ -88,25 +75,14 @@ exports.addLaporan = async (req, res) => {
           if (err) reject(err);
           else resolve(result);
         }
-      );
+        ).end(req.files.fotoPengerjaan[0].buffer);
   
-      // Kalau file berbentuk buffer (multer biasa)
-      if (file.buffer) {
-        uploadStream.end(file.buffer);
-      } 
-      // Kalau file berbentuk base64 (kamera/canvas frontend)
-      else if (file.base64) {
-        const buffer = Buffer.from(
-          file.base64.replace(/^data:image\/\w+;base64,/, ""),
-          "base64"
-        );
-        uploadStream.end(buffer);
-      } else {
-        reject(new Error("Format file tidak dikenali (harus buffer atau base64)"));
-      }
+      // Kalau file berbentuk buffer (multer biasa
     });
 
     // Simpan ke database
+    console.log(uploadFotoAwal)
+    console.log(uploadFotoPengerjaan)
     const newLaporan = new ModelLaporanAC({
       tanggalPengerjaan,
       ruangan,
@@ -124,6 +100,7 @@ exports.addLaporan = async (req, res) => {
     res.status(500).json({
       message: "Gagal menambahkan laporan",
       error: err.message,
+      
     });
   }
 };
