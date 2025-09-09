@@ -57,7 +57,7 @@ exports.addLaporan = async (req, res) => {
     // Upload fotoAwal ke Cloudinary
     const uploadFotoAwal = await new Promise((resolve, reject) => {
       cloudinary.uploader.upload_stream(
-        { folder },
+        { folder: "laporan-ac" },
         (err, result) => {
           if (err) reject(err);
           else resolve(result);
@@ -83,7 +83,7 @@ exports.addLaporan = async (req, res) => {
     // Upload fotoPengerjaan ke Cloudinary
     const uploadFotoPengerjaan = await new Promise((resolve, reject) => {
       cloudinary.uploader.upload_stream(
-        { folder },
+        { folder: "laporan-ac" },
         (err, result) => {
           if (err) reject(err);
           else resolve(result);
