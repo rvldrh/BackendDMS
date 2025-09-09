@@ -17,72 +17,51 @@ exports.getAllLaporan = async (req, res) => {
 
 // POST Tambah Laporan Baru (sekali saja, tidak bisa edit)
 // POST Tambah Laporan Baru (semua field wajib)
+// POST Tambah Laporan Baru (semua field wajib)
+// POST Tambah Laporan Baru
 exports.addLaporan = async (req, res) => {
   try {
-    const {
-      tanggalPengerjaan,
-      ruangan,
-      status,
-      hasil,
-      teknisi,
-    } = req.body;
+    const { tanggalPengerjaan, ruangan, status, hasil, teknisi } = req.body; // Periksa apakah file foto dikirim dan valid
 
-    // Validasi semua field harus ada
+    const fotoAwalFile = req.files?.fotoAwal?.[0];
+    const fotoPengerjaanFile = req.files?.fotoPengerjaan?.[0]; // Validasi semua field, termasuk file yang sekarang lebih robust
+
     if (
       !tanggalPengerjaan ||
       !ruangan ||
       !status ||
       !hasil ||
       !teknisi ||
-      !req.files?.fotoAwal ||
-      !req.files?.fotoPengerjaan
+      !fotoAwalFile || // Menggunakan variabel yang sudah di cek
+      !fotoPengerjaanFile
     ) {
+      // Menggunakan variabel yang sudah di cek
       return res.status(400).json({
         message:
           "Semua field wajib diisi: tanggalPengerjaan, ruangan, status, hasil, teknisi, fotoAwal, dan fotoPengerjaan",
       });
     }
 
-    // Siapkan array hasil
-    let hasilArray = [];
+    let hasilArray = Array.isArray(hasil) ? hasil : [hasil]; // Upload fotoAwal ke Cloudinary
 
-    // Kalau status 'Kerusakan' → hasil sebagai penjelasan kerusakan
-    if (status === "Kerusakan") {
-      hasilArray = [hasil];
-    } else {
-      // Tetap array meski hanya satu
-      hasilArray = Array.isArray(hasil) ? hasil : [hasil];
-    }
-
-    // Upload fotoAwal ke Cloudinary
     const uploadFotoAwal = await new Promise((resolve, reject) => {
-      cloudinary.uploader.upload_stream(
-        { folder: "laporan-ac" },
-        (err, result) => {
+      cloudinary.uploader
+        .upload_stream({ folder: "laporan-ac" }, (err, result) => {
           if (err) reject(err);
           else resolve(result);
-        }
-        ).end(req.files.fotoAwal[0].buffer);
+        })
+        .end(fotoAwalFile.buffer); // Menggunakan variabel yang sudah di cek
+    }); // Upload fotoPengerjaan ke Cloudinary
 
-      // Kalau file berbentuk buffer (multer biasa)
-    });
-
-    // Upload fotoPengerjaan ke Cloudinary
     const uploadFotoPengerjaan = await new Promise((resolve, reject) => {
-      cloudinary.uploader.upload_stream(
-        { folder: "laporan-ac" },
-        (err, result) => {
+      cloudinary.uploader
+        .upload_stream({ folder: "laporan-ac" }, (err, result) => {
           if (err) reject(err);
           else resolve(result);
-        }
-        ).end(req.files.fotoPengerjaan[0].buffer);
-  
-      // Kalau file berbentuk buffer (multer biasa
-    });
+        })
+        .end(fotoPengerjaanFile.buffer); // Menggunakan variabel yang sudah di cek
+    }); // Simpan ke database
 
-    // Simpan ke database
-    console.log(uploadFotoAwal)
-    console.log(uploadFotoPengerjaan)
     const newLaporan = new ModelLaporanAC({
       tanggalPengerjaan,
       ruangan,
@@ -100,12 +79,9 @@ exports.addLaporan = async (req, res) => {
     res.status(500).json({
       message: "Gagal menambahkan laporan",
       error: err.message,
-      
     });
   }
 };
-
-
 
 // GET Satu Laporan by ID
 exports.getLaporanById = async (req, res) => {
@@ -144,6 +120,7 @@ exports.deleteLaporan = async (req, res) => {
 
 // ⚠️ Fitur update di-nonaktifkan
 // PATCH Update Laporan
+// PATCH Update Laporan
 exports.updateLaporan = async (req, res) => {
   try {
     const { tanggalPengerjaan, ruangan, status, hasil, teknisi } = req.body;
@@ -163,28 +140,12 @@ exports.updateLaporan = async (req, res) => {
     // Update fotoAwal jika dikirim
     if (req.files?.fotoAwal) {
       const uploadFotoAwal = await new Promise((resolve, reject) => {
-        cloudinary.uploader.upload_stream(
-          { folder },
-          (err, result) => {
+        cloudinary.uploader
+          .upload_stream({ folder: "laporan-ac" }, (err, result) => {
             if (err) reject(err);
             else resolve(result);
-          }
-        );
-    
-        // Kalau file berbentuk buffer (multer biasa)
-        if (file.buffer) {
-          uploadStream.end(file.buffer);
-        } 
-        // Kalau file berbentuk base64 (kamera/canvas frontend)
-        else if (file.base64) {
-          const buffer = Buffer.from(
-            file.base64.replace(/^data:image\/\w+;base64,/, ""),
-            "base64"
-          );
-          uploadStream.end(buffer);
-        } else {
-          reject(new Error("Format file tidak dikenali (harus buffer atau base64)"));
-        }
+          })
+          .end(req.files.fotoAwal[0].buffer); // <-- PERBAIKAN: Langsung gunakan buffer dari req.files
       });
       laporan.fotoAwal = uploadFotoAwal.secure_url;
     }
@@ -192,28 +153,12 @@ exports.updateLaporan = async (req, res) => {
     // Update fotoPengerjaan jika dikirim
     if (req.files?.fotoPengerjaan) {
       const uploadFotoPengerjaan = await new Promise((resolve, reject) => {
-        cloudinary.uploader.upload_stream(
-          { folder },
-          (err, result) => {
+        cloudinary.uploader
+          .upload_stream({ folder: "laporan-ac" }, (err, result) => {
             if (err) reject(err);
             else resolve(result);
-          }
-        );
-    
-        // Kalau file berbentuk buffer (multer biasa)
-        if (file.buffer) {
-          uploadStream.end(file.buffer);
-        } 
-        // Kalau file berbentuk base64 (kamera/canvas frontend)
-        else if (file.base64) {
-          const buffer = Buffer.from(
-            file.base64.replace(/^data:image\/\w+;base64,/, ""),
-            "base64"
-          );
-          uploadStream.end(buffer);
-        } else {
-          reject(new Error("Format file tidak dikenali (harus buffer atau base64)"));
-        }
+          })
+          .end(req.files.fotoPengerjaan[0].buffer); // <-- PERBAIKAN: Langsung gunakan buffer dari req.files
       });
       laporan.fotoPengerjaan = uploadFotoPengerjaan.secure_url;
     }
@@ -259,7 +204,8 @@ exports.addHasilToLaporan = async (req, res) => {
 
     if (laporan.hasil.length >= 2) {
       return res.status(403).json({
-        message: "Hasil hanya dapat ditambahkan maksimal satu kali setelah input awal.",
+        message:
+          "Hasil hanya dapat ditambahkan maksimal satu kali setelah input awal.",
       });
     }
 
