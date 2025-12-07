@@ -58,6 +58,7 @@ const apar = require("./routes/apar.route");
 const laporanMarketing = require("./routes/laporanMarketing.route");
 const laporanJadwal = require("./routes/laporanJadwal.route");
 const laporanAC = require("./routes/laporanAC.route");
+const qrApar = require("./routes/qrApar.route");
 
 // ✅ Routes
 app.get("/", (req, res) => {
@@ -73,13 +74,14 @@ app.use("/api/apar", apar);
 app.use("/api/laporan_marketing", laporanMarketing);
 app.use("/api/laporan_jadwal", laporanJadwal);
 app.use("/api/laporan_AC", laporanAC); // ✅ penting! pastikan ini sudah include PATCH
+app.use("/api/qr_apar", qrApar);
 
 // ✅ Middleware 404
 app.use((req, res) => {
   res.status(404).json({
     status: "error",
     message: "Route not found",
-  });
+  }); 
 });
 
 // ✅ Koneksi MongoDB

@@ -146,6 +146,16 @@ const SchemaLaporanAC = new Schema(
   { timestamps: true }
 );
 
+const SchemaQrApar =  new Schema(
+  {
+    jenis: { type: String, required: true },
+    outlet: { type: String, required: true },
+    marketing: { type: String, required: true },
+    tanggal_exp: { type: Date, required: true },
+    tanggal_isi: { type: Date, required: true },
+  }
+)
+
 // Create Mongoose Models
 const ModelBarang = mongoose.model("katalog_barang", SchemaBarang);
 const ModelLaporan = mongoose.model("laporan_pembelian_barang", SchemaLaporan);
@@ -165,6 +175,7 @@ const ModelLaporanJadwal = mongoose.model(
   SchemaLaporanJadwal
 );
 const ModelLaporanAC = mongoose.model("laporan_ac", SchemaLaporanAC);
+const ModelQrApar = mongoose.model("qr_apar", SchemaQrApar);
 // Export models
 module.exports = {
   ModelBarang,
@@ -176,4 +187,5 @@ module.exports = {
   ModelLaporanMarketing,
   ModelLaporanJadwal,
   ModelLaporanAC,
+  ModelQrApar,
 };
