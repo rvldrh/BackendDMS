@@ -22,7 +22,7 @@ exports.createQrApar = async (req, res) => {
       await newQrApar.save(); // setelah ini kita punya _id
   
       // 2) Buat URL tujuan QR
-      const qrTargetUrl = `https://yourdomain.com/qr-apar/${newQrApar._id}`;
+      const qrTargetUrl = `https://dms-bms-frontend.vercel.app/pages/qr-apar/${newQrApar._id}`;
   
       // 3) Generate QR base64
       const qrBase64 = await QRCode.toDataURL(qrTargetUrl);
